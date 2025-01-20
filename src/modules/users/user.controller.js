@@ -3,12 +3,14 @@ import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { User } from './user.model.js';
 import { isValidObjectId } from 'mongoose';
+import jwt from 'jsonwebtoken';
 import {
   loginSchema,
   createUserSchema,
   changePasswordSchema,
   updateUserRoleSchema,
 } from './user.validation.js';
+import { config } from '../../config/appConfig.js';
 const optionsForAccessTokenCookie = {
   httpOnly: true,
   secure: true,
@@ -22,13 +24,14 @@ const optionsForRefreshTokenCookie = {
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId); // user object from model
+    
     if (!user) {
       throw new ApiError(
         500,
         'Something went wrong while generating Refresh & Access Token due to user not found',
       );
     }
-    const accessToken = await user.generateAccessToken();
+    const accessToken = await user.generateRefreshToken()
     const refreshToken = await user.generateRefreshToken();
     user.refreshToken = refreshToken;
     await user.save({ ValidateBeforeSave: false }); //off auto validation
@@ -186,13 +189,13 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     req.cookies.refreshToken || req.body.refreshToken;
 
   if (!receivedRefreshedToken) {
-    throw new ApiError(401, 'Unauthorized request');
+    throw new ApiError(401, 'Unauthorized request: Refresh token is missing');
   }
 
   try {
-    const decodedRefreshToken = await jwt.verify(
+    const decodedRefreshToken = jwt.verify(
       receivedRefreshedToken,
-      process.env.REFRESH_TOKEN_SECRET,
+      config.refresh_token_secret,
     );
 
     if (!decodedRefreshToken) {
@@ -206,23 +209,23 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     if (receivedRefreshedToken !== user?.refreshToken) {
       throw new ApiError(401, 'Refresh token is expired or used');
     }
-    const { generatedAccessToken, generatedRefreshToken } =
-      await generateAccessTokenAndRefreshToken(user._id);
-
+    const { accessToken, refreshToken } =
+    await generateAccessTokenAndRefreshToken(user?._id);
+   
     return res
       .status(200)
-      .cookie('accessToken', generatedAccessToken, optionsForAccessTokenCookie)
+      .cookie('accessToken', accessToken, optionsForAccessTokenCookie)
       .cookie(
         'refreshToken',
-        generatedRefreshToken,
+        refreshToken,
         optionsForRefreshTokenCookie,
       )
       .json(
         new ApiResponse(
           200,
           {
-            accessToken: generatedAccessToken,
-            refreshToken: generatedRefreshToken,
+            accessToken,
+            refreshToken,
           },
           'successfully generated Access and refresh token',
         ),
