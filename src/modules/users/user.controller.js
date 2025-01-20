@@ -1,8 +1,8 @@
 import { ApiError } from '../../utils/ApiError.js';
 import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { User, UserRole } from './user.model.js';
-
+import { User } from './user.model.js';
+import { registerSchema } from './user.validation.js';
 const optionsForAccessTokenCookie = {
   httpOnly: true,
   secure: true,
@@ -36,11 +36,21 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
-  if (role === UserRole.CLIENT || role === UserRole.VENDOR) {
-    throw new ApiError(400, 'Invalid role');
+  const { error } = registerSchema.validate(req.body);
+
+  if (error) {
+    throw new ApiError(400, error.details[0].message);
   }
-  const user = await User.create({ name, email, password, role });
+
+  const { username, fullname, email, password, role } = req.body;
+
+  const userExisted = await User.findOne({ email: email });
+
+  if (userExisted) {
+    throw new ApiError(400, 'User already exists with this email');
+  }
+
+  const user = await User.create({ username, fullname, email, password, role });
   const userResponse = await User.findById(user._id).select(
     '-password -refreshToken  -__v',
   ); //remove password & refresh token
@@ -49,6 +59,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(201, 'User created successfully', userResponse));
 });
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -157,4 +168,4 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, logoutUser, loginUser ,refreshAccessToken};
+export { registerUser, logoutUser, loginUser, refreshAccessToken };

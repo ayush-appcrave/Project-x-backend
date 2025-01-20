@@ -4,17 +4,20 @@ import jwt from 'jsonwebtoken';
 import {config} from '../../config/appConfig.js';
 export const UserRole = {
   SYSTEM_ADMIN: 'systemAdmin',
-  SALES_LEAD: 'salesLead',
   SALES_MEMBER: 'salesMember',
-  RECRUITMENT_LEAD: 'recruitmentLead',
   RECRUITMENT_MEMBER: 'recruitmentMember',
   ORG_MANAGER: 'organizationManager',
-  CLIENT: 'client', // No password required
-  VENDOR: 'vendor' // No password required
+  Manager: 'manager',
 };
 const userSchema = new Schema(
   {
-    name: {
+    username:{
+      type: String,
+      required: [true, "Please provide the user's username"],
+      unique: true,
+      trim: true,
+    },
+    fullname: {
       type: String,
       required: [true, "Please provide the user's name"],
       trim: true,
@@ -28,9 +31,7 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: function () {
-        return this.role !== UserRole.CLIENT && this.role !== UserRole.VENDOR;
-      },
+      required:true,
       minlength: 6,
     },
     role: {
@@ -38,20 +39,6 @@ const userSchema = new Schema(
       enum: Object.values(UserRole),
       required: [true, "Please provide the user's role"],
     },
-    assignedClients: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Client',
-        default: [],
-      },
-    ],
-    assignedVendors: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Vendor',
-        default: [],
-      },
-    ],
     refreshToken: {
       type: String,
     },
