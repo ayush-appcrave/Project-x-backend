@@ -14,24 +14,24 @@ import { config } from '../../config/appConfig.js';
 const optionsForAccessTokenCookie = {
   httpOnly: true,
   secure: true,
-  maxAge: 60 * 60 * 2000, // 120 minutes
+  maxAge: parseInt(config.access_token_expiry), // 1 day in milliseconds
 };
 const optionsForRefreshTokenCookie = {
   httpOnly: true,
   secure: true,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  maxAge: parseInt(config.refresh_token_expiry), // 7 days in milliseconds
 };
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId); // user object from model
-    
+
     if (!user) {
       throw new ApiError(
         500,
         'Something went wrong while generating Refresh & Access Token due to user not found',
       );
     }
-    const accessToken = await user.generateRefreshToken()
+    const accessToken = await user.generateRefreshToken();
     const refreshToken = await user.generateRefreshToken();
     user.refreshToken = refreshToken;
     await user.save({ ValidateBeforeSave: false }); //off auto validation
@@ -210,16 +210,12 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, 'Refresh token is expired or used');
     }
     const { accessToken, refreshToken } =
-    await generateAccessTokenAndRefreshToken(user?._id);
-   
+      await generateAccessTokenAndRefreshToken(user?._id);
+
     return res
       .status(200)
       .cookie('accessToken', accessToken, optionsForAccessTokenCookie)
-      .cookie(
-        'refreshToken',
-        refreshToken,
-        optionsForRefreshTokenCookie,
-      )
+      .cookie('refreshToken', refreshToken, optionsForRefreshTokenCookie)
       .json(
         new ApiResponse(
           200,
