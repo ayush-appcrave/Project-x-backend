@@ -2,7 +2,7 @@ import { ApiError } from '../../utils/ApiError.js';
 import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { User } from './user.model.js';
-import { registerSchema } from './user.validation.js';
+import { loginSchema, registerSchema } from './user.validation.js';
 const optionsForAccessTokenCookie = {
   httpOnly: true,
   secure: true,
@@ -61,19 +61,24 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
+  const { error } = loginSchema.validate(req.body);
+  if (error) {
+    throw new ApiError(400, error.details[0].message);
+  }
+
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
+
   if (!user) throw new ApiError(401, 'User does not exist !!');
 
   const isPasswordValid = await user.isPasswordMatch(password);
 
   if (!isPasswordValid) throw new ApiError(401, 'Invalid User Password'); //refer user model for isPasswordCorrect Checked is not inverse
 
-  const { accessToken, refreshToken } =
-    await generateAccessTokenAndRefreshToken(user._id);
+  const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(user?._id);
 
-  const loggedInUser = await User.findById(user._id).select(
+  const loggedInUser = await User.findById(user?._id).select(
     '-password -refreshToken  -__v',
   );
 
@@ -84,6 +89,8 @@ const loginUser = asyncHandler(async (req, res) => {
     fullname: loggedInUser.fullname,
     email: loggedInUser.email,
     name: loggedInUser.name,
+    role: loggedInUser.role,
+    username: loggedInUser.username,
   };
 
   return res

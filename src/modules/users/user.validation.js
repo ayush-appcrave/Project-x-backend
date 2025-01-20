@@ -8,5 +8,9 @@ const registerSchema = Joi.object({
     role:Joi.string().valid(...Object.values(UserRole)).required()
 })
 
+const loginSchema =  Joi.object({
+    email:Joi.string().email().required(),
+    password:Joi.string().min(6).required()
+})
 
-export {registerSchema};
+export {registerSchema , loginSchema};
