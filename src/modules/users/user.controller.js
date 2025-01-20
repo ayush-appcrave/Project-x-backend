@@ -2,7 +2,13 @@ import { ApiError } from '../../utils/ApiError.js';
 import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { User } from './user.model.js';
-import { loginSchema, registerSchema } from './user.validation.js';
+import { isValidObjectId } from 'mongoose';
+import {
+  loginSchema,
+  createUserSchema,
+  changePasswordSchema,
+  updateUserRoleSchema,
+} from './user.validation.js';
 const optionsForAccessTokenCookie = {
   httpOnly: true,
   secure: true,
@@ -35,8 +41,8 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
   }
 };
 
-const registerUser = asyncHandler(async (req, res) => {
-  const { error } = registerSchema.validate(req.body);
+const createUser = asyncHandler(async (req, res) => {
+  const { error } = createUserSchema.validate(req.body);
 
   if (error) {
     throw new ApiError(400, error.details[0].message);
@@ -76,7 +82,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (!isPasswordValid) throw new ApiError(401, 'Invalid User Password'); //refer user model for isPasswordCorrect Checked is not inverse
 
-  const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(user?._id);
+  const { accessToken, refreshToken } =
+    await generateAccessTokenAndRefreshToken(user?._id);
 
   const loggedInUser = await User.findById(user?._id).select(
     '-password -refreshToken  -__v',
@@ -124,6 +131,56 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, 'User Logout successfully'));
 });
 
+const changeUserPassword = asyncHandler(async (req, res) => {
+  //validate the request body
+  // then check the old password is correct or not
+  // if correct then update the password
+  const { error } = changePasswordSchema.validate(req.body);
+  if (error) {
+    throw new ApiError(400, error.details[0].message);
+  }
+
+  const { oldPassword, newPassword } = req.body;
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(401, 'User not found');
+  }
+  const isPasswordCorrect = await user.isPasswordMatch(oldPassword);
+  if (!isPasswordCorrect) {
+    throw new ApiError(401, 'Old Password is not correct');
+  }
+  user.password = newPassword;
+  await user.save();
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Password changed successfully'));
+});
+
+const updateUserRole = asyncHandler(async (req, res) => {
+  const { error } = updateUserRoleSchema.validate(req.body);
+  if (error) {
+    throw new ApiError(400, error.details[0].message);
+  }
+  const { role } = req.body;
+  const { userId } = req.params;
+
+  if (!userId || !isValidObjectId(userId)) {
+    throw new ApiError(400, 'Invalid User ID');
+  }
+
+  const user = await User.findByIdAndUpdate(
+    { _id: userId },
+    { role: role },
+    { new: true },
+  ).select('-password -refreshToken -__v');
+
+  if (!user) {
+    throw new ApiError(400, 'User not found');
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, 'User role updated successfully'));
+});
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const receivedRefreshedToken =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -175,4 +232,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, logoutUser, loginUser, refreshAccessToken };
+export {
+  createUser,
+  logoutUser,
+  loginUser,
+  refreshAccessToken,
+  changeUserPassword,
+  updateUserRole,
+};
