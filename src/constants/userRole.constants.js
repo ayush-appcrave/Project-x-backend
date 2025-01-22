@@ -1,7 +1,8 @@
-export const userRole = {
+const userRole = {
   SYSTEM_ADMIN: 'systemAdmin',
-  SALES_MEMBER: 'salesMember',
-  RECRUITMENT_MEMBER: 'recruitmentMember',
-  ORG_MANAGER: 'organizationManager',
-  MANAGER: 'manager'
+  SALES_MANAGER: 'salesManager',
+  RECRUITMENT_MANAGER: 'recruitmentManager',
+  OPERATION_MANAGER: 'operationManager',
 };
+
+export { userRole };

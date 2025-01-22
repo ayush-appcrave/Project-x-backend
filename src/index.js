@@ -1,10 +1,9 @@
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
 
-
-import { connectDB } from "./config/database.js";
-import { app } from "./app.js";
-import { config } from "./config/appConfig.js";
+import { app } from './app.js';
+import { config } from './config/appConfig.js';
+import { connectDB } from './config/database.js';
 
 const startServer = async () => {
   try {
@@ -19,7 +18,7 @@ const startServer = async () => {
   }
 };
 
-app.on("error", (err) => {
+app.on('error', (err) => {
   console.error(`app on error in index.js at src: ${err}`);
 });
 

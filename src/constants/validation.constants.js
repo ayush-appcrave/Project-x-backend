@@ -16,6 +16,7 @@ export const VALIDATION_MESSAGES = {
     UPPERCASE: 'Password must contain at least one uppercase letter',
     LOWERCASE: 'Password must contain at least one lowercase letter',
     NUMBER: 'Password must contain at least one number',
-    SPECIAL_CHAR: 'Password must contain at least one special character (!@#$%^&*)',
+    SPECIAL_CHAR:
+      'Password must contain at least one special character (!@#$%^&*)',
   },
 };
