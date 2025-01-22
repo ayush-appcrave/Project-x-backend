@@ -1,18 +1,17 @@
 import { Router } from 'express';
 import {
-  createUser,
-  logoutUser,
-  loginUser,
-  refreshAccessToken,
   changeUserPassword,
-  updateUserRole
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  register,
+  updateUserRole,
 } from './user.controller.js';
 
-import { VerifyJwt, authorizeRole } from '../../middlewares/auth.middleware.js';
-import { UserRole } from './user.model.js';
+import { VerifyJwt } from '../../middlewares/auth.middleware.js';
 const router = Router();
 
-router.route('/create-user').post(createUser);
+router.route('/register').post(register);
 router.route('/logout').post(VerifyJwt, logoutUser);
 router.route('/change-password').patch(VerifyJwt, changeUserPassword);
 router.route('/update-role/:userId').patch(VerifyJwt, updateUserRole);

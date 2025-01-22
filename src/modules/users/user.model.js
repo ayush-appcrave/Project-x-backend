@@ -11,12 +11,6 @@ export const UserRole = {
 };
 const userSchema = new Schema(
   {
-    username:{
-      type: String,
-      required: [true, "Please provide the user's username"],
-      unique: true,
-      trim: true,
-    },
     fullname: {
       type: String,
       required: [true, "Please provide the user's name"],

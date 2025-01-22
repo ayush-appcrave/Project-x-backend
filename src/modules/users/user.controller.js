@@ -1,16 +1,16 @@
+import jwt from 'jsonwebtoken';
+import { isValidObjectId } from 'mongoose';
+import { config } from '../../config/appConfig.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { User } from './user.model.js';
-import { isValidObjectId } from 'mongoose';
-import jwt from 'jsonwebtoken';
 import {
-  loginSchema,
-  createUserSchema,
   changePasswordSchema,
+  loginSchema,
+  registerSchema,
   updateUserRoleSchema,
 } from './user.validation.js';
-import { config } from '../../config/appConfig.js';
 const optionsForAccessTokenCookie = {
   httpOnly: true,
   secure: true,
@@ -44,14 +44,14 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
   }
 };
 
-const createUser = asyncHandler(async (req, res) => {
-  const { error } = createUserSchema.validate(req.body);
+const register = asyncHandler(async (req, res) => {
+  const { error } = registerSchema.validate(req.body);
 
   if (error) {
     throw new ApiError(400, error.details[0].message);
   }
 
-  const { username, fullname, email, password, role } = req.body;
+  const { fullname, email, password, role } = req.body;
 
   const userExisted = await User.findOne({ email: email });
 
@@ -59,14 +59,14 @@ const createUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'User already exists with this email');
   }
 
-  const user = await User.create({ username, fullname, email, password, role });
+  const user = await User.create({ fullname, email, password, role });
   const userResponse = await User.findById(user._id).select(
     '-password -refreshToken  -__v',
   ); //remove password & refresh token
 
   return res
     .status(201)
-    .json(new ApiResponse(201, 'User created successfully', userResponse));
+    .json(new ApiResponse(201, userResponse, 'User register successfully'));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -100,7 +100,6 @@ const loginUser = asyncHandler(async (req, res) => {
     email: loggedInUser.email,
     name: loggedInUser.name,
     role: loggedInUser.role,
-    username: loggedInUser.username,
   };
 
   return res
@@ -232,10 +231,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 export {
-  createUser,
-  logoutUser,
-  loginUser,
-  refreshAccessToken,
   changeUserPassword,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  register,
   updateUserRole,
 };
