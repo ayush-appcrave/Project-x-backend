@@ -1,14 +1,9 @@
-import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import {config} from '../../config/appConfig.js';
-export const UserRole = {
-  SYSTEM_ADMIN: 'systemAdmin',
-  SALES_MEMBER: 'salesMember',
-  RECRUITMENT_MEMBER: 'recruitmentMember',
-  ORG_MANAGER: 'organizationManager',
-  Manager: 'manager',
-};
+import { Schema, model } from 'mongoose';
+import { config } from '../../config/appConfig.js';
+import { userRole } from '../../constants/userRole.constants.js';
+
 const userSchema = new Schema(
   {
     fullname: {
@@ -22,26 +17,15 @@ const userSchema = new Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      validate: {
-        validator: function(v) {
-          return VALIDATION_REGEX.EMAIL.test(v);
-        },
-        message: props => VALIDATION_MESSAGES.EMAIL
-      }
     },
     password: {
       type: String,
-      required:true,
-      validate: {
-        validator: function(v) {
-          return VALIDATION_REGEX.PASSWORD.test(v);
-        },
-        message: props => VALIDATION_MESSAGES.PASSWORD.GENERAL
-      }
+      required: true,
+      min: 8,
     },
     role: {
       type: String,
-      enum: Object.values(UserRole),
+      enum: Object.values(userRole),
       required: [true, "Please provide the user's role"],
     },
     refreshToken: {
@@ -59,12 +43,9 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-userSchema.methods.isPasswordMatch = async function (
-  candidatePassword
-) {
+userSchema.methods.isPasswordMatch = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
-
 
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
@@ -76,7 +57,7 @@ userSchema.methods.generateAccessToken = function () {
     config.access_token_secret,
     {
       expiresIn: config.access_token_expiry,
-    }
+    },
   );
 };
 
@@ -88,10 +69,8 @@ userSchema.methods.generateRefreshToken = function () {
     config.refresh_token_secret,
     {
       expiresIn: config.refresh_token_expiry,
-    }
+    },
   );
 };
 
-export  const User = model('User', userSchema);
-
-
+export const User = model('User', userSchema);
