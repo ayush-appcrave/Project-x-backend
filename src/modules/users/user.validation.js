@@ -1,9 +1,6 @@
 import Joi from 'joi';
 import { userRole } from '../../constants/userRole.constants.js';
-import {
-  VALIDATION_MESSAGES,
-  VALIDATION_REGEX,
-} from '../../constants/validation.constants.js';
+import { VALIDATION_REGEX, VALIDATION_MESSAGES } from '../../constants/validation.constants.js';
 
 const registerSchema = Joi.object({
   fullname: Joi.string().required(),
@@ -12,18 +9,18 @@ const registerSchema = Joi.object({
     .regex(new RegExp(VALIDATION_REGEX.EMAIL))
     .messages({
       'string.pattern.base': VALIDATION_MESSAGES.EMAIL,
+      'string.empty': '{#label} is required'
     }),
   password: Joi.string()
     .required()
     .regex(new RegExp(VALIDATION_REGEX.PASSWORD))
     .messages({
-      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(
-        ', ',
-      ),
-      'string.empty': 'Password is required',
-      'any.required': 'Password is required',
+      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(', '),
+      'string.empty': '{#label} is required'
     }),
-  role: Joi.string().valid('user', 'admin').default('user'),
+  role: Joi.string()
+    .valid(...Object.values(userRole))
+    .default(userRole.SYSTEM_ADMIN)
 });
 
 const loginSchema = Joi.object({
@@ -31,10 +28,10 @@ const loginSchema = Joi.object({
     .required()
     .regex(new RegExp(VALIDATION_REGEX.EMAIL))
     .messages({
-      'string.pattern.base': '{#label} format is invalid',
-      'string.empty': '{#label} is required',
+      'string.pattern.base': VALIDATION_MESSAGES.EMAIL,
+      'string.empty': '{#label} is required'
     }),
-  password: Joi.string().required(),
+  password: Joi.string().required()
 });
 
 const changePasswordSchema = Joi.object({
@@ -43,21 +40,23 @@ const changePasswordSchema = Joi.object({
     .required()
     .regex(new RegExp(VALIDATION_REGEX.PASSWORD))
     .messages({
-      'string.pattern.base':
-        '{#label} must contain uppercase, lowercase, number and special character',
-      'string.empty': '{#label} is required',
-    }),
+      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(', '),
+      'string.empty': '{#label} is required'
+    })
 });
 
 const updateUserRoleSchema = Joi.object({
   role: Joi.string()
     .valid(...Object.values(userRole))
-    .required(),
+    .required()
+    .messages({
+      'any.only': 'Role must be one of: ' + Object.values(userRole).join(', ')
+    })
 });
 
 export {
-  changePasswordSchema,
-  loginSchema,
   registerSchema,
-  updateUserRoleSchema,
+  loginSchema,
+  changePasswordSchema,
+  updateUserRoleSchema
 };
