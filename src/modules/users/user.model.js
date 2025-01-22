@@ -22,11 +22,22 @@ const userSchema = new Schema(
       unique: true,
       trim: true,
       lowercase: true,
+      validate: {
+        validator: function(v) {
+          return VALIDATION_REGEX.EMAIL.test(v);
+        },
+        message: props => VALIDATION_MESSAGES.EMAIL
+      }
     },
     password: {
       type: String,
       required:true,
-      minlength: 6,
+      validate: {
+        validator: function(v) {
+          return VALIDATION_REGEX.PASSWORD.test(v);
+        },
+        message: props => VALIDATION_MESSAGES.PASSWORD.GENERAL
+      }
     },
     role: {
       type: String,
