@@ -1,5 +1,5 @@
 export const VALIDATION_REGEX = {
-  EMAIL: /^[a-zA-Z0-9](\.?[a-zA-Z0-9_-])*@[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/,
+  EMAIL: /^[a-z0-9](\.?[a-z0-9_-])*@[a-z0-9-]+(\.[a-z]{2,})+$/, // Matches only lowercase email addresses
   PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/,
   PASSWORD_RULES: {
     UPPERCASE: /^(?=.*[A-Z])/,
@@ -10,7 +10,7 @@ export const VALIDATION_REGEX = {
 };
 
 export const VALIDATION_MESSAGES = {
-  EMAIL: 'Please enter a valid email address',
+  EMAIL: 'Please enter a valid email address in lowercase only',
   PASSWORD: {
     MIN_LENGTH: 'Password must be at least 8 characters',
     UPPERCASE: 'Password must contain at least one uppercase letter',

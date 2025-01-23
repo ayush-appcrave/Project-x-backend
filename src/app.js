@@ -3,7 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { config } from './config/appConfig.js';
 import { requestTracer } from './middlewares/requestTracer.middleware.js';
-
+import { errorHandler } from './middlewares/errorHandler.middleware.js';
 
 const app = express();
 
@@ -19,11 +19,14 @@ app.use(cookieParser()); // use for cookies handling on server level
 
 app.use(requestTracer);
 
+
 //Routes
 import userRoutes from './modules/users/user.routes.js';
 //Routes Declarations
 app.use('/api/v1/users', userRoutes);
-
 // http://localhost:8080/api/v1/users/register
+
+// The Error Handling Middleware should be placed at the end of all other middleware and route definitions to ensure it captures all errors.
+app.use(errorHandler);
 
 export { app };

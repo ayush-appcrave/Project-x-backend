@@ -54,7 +54,7 @@ const register = asyncHandler(async (req, res) => {
   const { fullname, email, password, role } = req.body;
 
   const userExisted = await User.findOne({ email: email });
-
+  
   if (userExisted) {
     throw new ApiError(400, 'User already exists with this email');
   }
@@ -79,7 +79,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (!user) throw new ApiError(401, 'User does not exist !!');
+  if (!user) throw new ApiError(401, 'User does not exist');
 
   const isPasswordValid = await user.isPasswordMatch(password);
 
