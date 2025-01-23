@@ -23,9 +23,7 @@ const registerSchema = Joi.object({
       ),
       'string.empty': '{#label} is required',
     }),
-  role: Joi.string()
-    .valid(...Object.values(userRole))
-    .default(userRole.SYSTEM_ADMIN),
+  role: Joi.string().valid(...Object.values(userRole)),
 });
 
 const loginSchema = Joi.object({
