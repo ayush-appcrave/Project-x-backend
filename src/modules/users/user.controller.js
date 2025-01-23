@@ -54,7 +54,7 @@ const register = asyncHandler(async (req, res) => {
   const { fullname, email, password, role } = req.body;
 
   const userExisted = await User.findOne({ email: email });
-  
+
   if (userExisted) {
     throw new ApiError(400, 'User already exists with this email');
   }
@@ -128,8 +128,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie('accessToken', optionsForAccessTokenCookie)
-    .clearCookie('refreshToken', optionsForRefreshTokenCookie)
+    .clearCookie('accessToken')
+    .clearCookie('refreshToken')
     .json(new ApiResponse(200, {}, 'User Logout successfully'));
 });
 
