@@ -1,4 +1,3 @@
-// filepath: /c:/Users/Acer/Desktop/Project/Project X/Backend/src/config/appConfig.js
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
 
@@ -21,6 +20,7 @@ const config = {
   access_token_expiry: getEnvVar('ACCESS_TOKEN_EXPIRY', '3600000'), // Default to 1 hour
   refresh_token_secret: getEnvVar('REFRESH_TOKEN_SECRET'),
   refresh_token_expiry: getEnvVar('REFRESH_TOKEN_EXPIRY', '86400000'), // Default to 1 day
+  isDevelopment: getEnvVar('NODE_ENV', 'development') === 'development',
 };
 
 Object.freeze(config);
