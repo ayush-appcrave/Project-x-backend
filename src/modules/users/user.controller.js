@@ -6,6 +6,10 @@ import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { User } from './user.model.js';
 import {
+  generateAccessTokenAndRefreshToken,
+  UserService,
+} from './user.service.js';
+import {
   changePasswordSchema,
   loginSchema,
   registerSchema,
@@ -21,52 +25,19 @@ const optionsForRefreshTokenCookie = {
   secure: true,
   maxAge: parseInt(config.refresh_token_expiry), // 7 days in milliseconds
 };
-const generateAccessTokenAndRefreshToken = async (userId) => {
-  try {
-    const user = await User.findById(userId); // user object from model
 
-    if (!user) {
-      throw new ApiError(
-        500,
-        'Something went wrong while generating Refresh & Access Token due to user not found',
-      );
-    }
-    const accessToken = await user.generateRefreshToken();
-    const refreshToken = await user.generateRefreshToken();
-    user.refreshToken = refreshToken;
-    await user.save({ ValidateBeforeSave: false }); //off auto validation
-    return { accessToken, refreshToken };
-  } catch (error) {
-    throw new ApiError(
-      500,
-      'Something went wrong while generating Refresh & Access Token',
-    );
-  }
-};
-
-const register = asyncHandler(async (req, res) => {
+const createUser = asyncHandler(async (req, res) => {
   const { error } = registerSchema.validate(req.body);
-
   if (error) {
     throw new ApiError(400, error.details[0].message);
   }
 
   const { fullname, email, password, role } = req.body;
-
-  const userExisted = await User.findOne({ email: email });
-
-  if (userExisted) {
-    throw new ApiError(400, 'User already exists with this email');
-  }
-
-  const user = await User.create({ fullname, email, password, role });
-  const userResponse = await User.findById(user._id).select(
-    '-password -refreshToken  -__v',
-  ); //remove password & refresh token
+  const user = await UserService.createUser(fullname, email, password, role);
 
   return res
     .status(201)
-    .json(new ApiResponse(201, userResponse, 'User register successfully'));
+    .json(new ApiResponse(201, user, 'User register successfully'));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -76,54 +47,20 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-
-  if (!user) throw new ApiError(401, 'User does not exist');
-
-  const isPasswordValid = await user.isPasswordMatch(password);
-
-  if (!isPasswordValid) throw new ApiError(401, 'Invalid User Password'); //refer user model for isPasswordCorrect Checked is not inverse
-
-  const { accessToken, refreshToken } =
-    await generateAccessTokenAndRefreshToken(user?._id);
-
-  const loggedInUser = await User.findById(user?._id).select(
-    '-password -refreshToken  -__v',
-  );
-
-  const responseData = {
-    accessToken,
-    refreshToken,
-    _id: loggedInUser._id,
-    fullname: loggedInUser.fullname,
-    email: loggedInUser.email,
-    name: loggedInUser.name,
-    role: loggedInUser.role,
-  };
+  const user = await UserService.loginUser(email, password);
 
   return res
     .status(200)
-    .cookie('accessToken', accessToken, optionsForAccessTokenCookie)
-    .cookie('refreshToken', refreshToken, optionsForRefreshTokenCookie)
-    .json(new ApiResponse(200, responseData, 'User Logged In Successfully'));
+    .cookie('accessToken', user.accessToken, optionsForAccessTokenCookie)
+    .cookie('refreshToken', user.refreshToken, optionsForRefreshTokenCookie)
+    .json(new ApiResponse(200, user, 'User Logged In Successfully'));
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (!user || !user.refreshToken) {
-    throw new ApiError(401, 'User is not logged in or session has expired');
-  }
-  if (user && user.refreshToken) {
-    await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        $unset: { refreshToken: 1 },
-      },
-      { new: true },
-    );
-  } else {
-    throw new ApiError(401, 'Unauthorized request for LOGOUT');
+  const user = await UserService.logoutUser(req.user._id);
+
+  if (!user) {
+    throw new ApiError(400, 'Unable to logout user');
   }
 
   return res
@@ -134,25 +71,22 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const changeUserPassword = asyncHandler(async (req, res) => {
-  //validate the request body
-  // then check the old password is correct or not
-  // if correct then update the password
   const { error } = changePasswordSchema.validate(req.body);
   if (error) {
     throw new ApiError(400, error.details[0].message);
   }
 
   const { oldPassword, newPassword } = req.body;
-  const user = await User.findById(req.user._id);
+  const user = await UserService.changeUserPassword(
+    req.user._id,
+    oldPassword,
+    newPassword,
+  );
+
   if (!user) {
-    throw new ApiError(401, 'User not found');
+    throw new ApiError(400, 'Unable to change password');
   }
-  const isPasswordCorrect = await user.isPasswordMatch(oldPassword);
-  if (!isPasswordCorrect) {
-    throw new ApiError(401, 'Old Password is not correct');
-  }
-  user.password = newPassword;
-  await user.save();
+
   return res
     .status(200)
     .json(new ApiResponse(200, 'Password changed successfully'));
@@ -230,11 +164,30 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
+const verifyToken = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({
+      valid: false,
+      message: 'Token validation failed',
+    });
+  }
+
+  return res.status(200).json({
+    valid: true,
+    user: {
+      _id: req.user._id,
+      fullname: req.user.fullname,
+      email: req.user.email,
+      role: req.user.role,
+    },
+  });
+});
 export {
   changeUserPassword,
   loginUser,
   logoutUser,
   refreshAccessToken,
-  register,
+  createUser,
   updateUserRole,
+  verifyToken,
 };
