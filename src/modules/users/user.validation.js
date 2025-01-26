@@ -59,6 +59,7 @@ const updateUserRoleSchema = Joi.object({
     }),
 });
 
+
 export {
   changePasswordSchema,
   loginSchema,

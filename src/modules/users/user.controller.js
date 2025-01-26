@@ -1,14 +1,9 @@
-import jwt from 'jsonwebtoken';
 import { isValidObjectId } from 'mongoose';
 import { config } from '../../config/appConfig.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { User } from './user.model.js';
-import {
-  generateAccessTokenAndRefreshToken,
-  UserService,
-} from './user.service.js';
+import { UserService } from './user.service.js';
 import {
   changePasswordSchema,
   loginSchema,
@@ -101,67 +96,41 @@ const updateUserRole = asyncHandler(async (req, res) => {
   const { userId } = req.params;
 
   if (!userId || !isValidObjectId(userId)) {
-    throw new ApiError(400, 'Invalid User ID');
+    throw new ApiError(400, 'Invalid Mongoose Id');
   }
-
-  const user = await User.findByIdAndUpdate(
-    { _id: userId },
-    { role: role },
-    { new: true },
-  ).select('-password -refreshToken -__v');
-
-  if (!user) {
-    throw new ApiError(400, 'User not found');
+  const updateUserRole = await UserService.updateUserRole(userId, role);
+  if (!updateUserRole) {
+    throw new ApiError(500, 'Unable To Update User Role');
   }
   return res
     .status(200)
-    .json(new ApiResponse(200, user, 'User role updated successfully'));
+    .json(
+      new ApiResponse(200, updateUserRole, 'User role updated successfully'),
+    );
 });
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  const receivedRefreshedToken =
+  const receivedRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
 
-  if (!receivedRefreshedToken) {
+  if (!receivedRefreshToken) {
     throw new ApiError(401, 'Unauthorized request: Refresh token is missing');
   }
 
-  try {
-    const decodedRefreshToken = jwt.verify(
-      receivedRefreshedToken,
-      config.refresh_token_secret,
+  const { accessToken, refreshToken } = await UserService.refreshAccessToken(
+    receivedRefreshToken,
+  );
+
+  return res
+    .status(200)
+    .cookie('accessToken', accessToken, optionsForAccessTokenCookie)
+    .cookie('refreshToken', refreshToken, optionsForRefreshTokenCookie)
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, refreshToken },
+        'successfully generated Access and refresh token',
+      ),
     );
-
-    if (!decodedRefreshToken) {
-      throw new ApiError(401, 'Refresh token is not decoded');
-    }
-    const user = await User.findById(decodedRefreshToken?._id); //refer user model for this
-
-    if (!user) {
-      throw new ApiError(401, 'Invalid Refresh token');
-    }
-    if (receivedRefreshedToken !== user?.refreshToken) {
-      throw new ApiError(401, 'Refresh token is expired or used');
-    }
-    const { accessToken, refreshToken } =
-      await generateAccessTokenAndRefreshToken(user?._id);
-
-    return res
-      .status(200)
-      .cookie('accessToken', accessToken, optionsForAccessTokenCookie)
-      .cookie('refreshToken', refreshToken, optionsForRefreshTokenCookie)
-      .json(
-        new ApiResponse(
-          200,
-          {
-            accessToken,
-            refreshToken,
-          },
-          'successfully generated Access and refresh token',
-        ),
-      );
-  } catch (error) {
-    throw new ApiError(401, error?.message || 'Invalid Refresh Token');
-  }
 });
 
 const verifyToken = asyncHandler(async (req, res) => {
@@ -184,10 +153,10 @@ const verifyToken = asyncHandler(async (req, res) => {
 });
 export {
   changeUserPassword,
+  createUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
-  createUser,
   updateUserRole,
   verifyToken,
 };
