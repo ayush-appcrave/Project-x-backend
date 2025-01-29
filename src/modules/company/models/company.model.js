@@ -2,19 +2,19 @@ import { Schema, model } from 'mongoose';
 import { companyStatus } from '../../../constants/company.constants.js';
 const companySchema = Schema(
   {
-    companyname: {
+    CompanyName: {
       type: String,
       required: true,
       trim: true,
       lowercase: true,
     },
-    companyemail: {
+    CompanyEmail: {
       type: String,
       required: true,
       trim: true,
       lowercase: true,
     },
-    companyaddress: [
+    CompanyAddress: [
       {
         city: {
           type: String,
@@ -27,7 +27,7 @@ const companySchema = Schema(
        
       },
     ],
-    companysociallinks: {
+    CompanySocialLinks: {
       linkedin: {
         type: String,
         trim: true,
@@ -38,50 +38,50 @@ const companySchema = Schema(
         trim: true,
       },
     },
-    companygst: {
+    CompanyGst: {
       type: String,
       trim: true,
       unique: true,
       length: 15,
       match: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
     },
-    companystatus: {
+    CompanyStatus: {
       type: String,
       enum: Object.values(companyStatus),
       required: true,
     },
-    companytypeid: {
+    CompanyTypeID: {
       type: Schema.Types.ObjectId,
       ref: 'CompanyType',
       required: true,
     },
     //company tyep - client vendor 
     //company mode of opertion  - c2c c2h , fte [can be slecte ]
-    companydocuments: [
+    CompanyDocuments: [
       {
         type: Schema.Types.ObjectId,
         ref: 'CompanyDocument',
       },
     ],
-    pocname: {
+    PocName: {
       type: String,
     },
-    poccontact: {
-      type: String,
-      trim: true,
-      lowercase: true,
-    },
-    pocemail: {
+    PocContact: {
       type: String,
       trim: true,
       lowercase: true,
     },
-    createdby: {
+    PocEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    CreatedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    modifiedby: {
+    ModifiedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,

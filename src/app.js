@@ -19,11 +19,21 @@ app.use(cookieParser()); // use for cookies handling on server level
 
 app.use(requestTracer);
 
+app.post('/api/v1/company/create-company-type', (req, res) => {
+    console.log(req.body);
+    res.json({ message: "Company type created!" });
+});
 
 //Routes
 import userRoutes from './modules/users/user.routes.js';
+import companyRoutes from './modules/company/company.routes.js';
 //Routes Declarations
 app.use('/api/v1/users', userRoutes);
+app.use('api/v1/company',companyRoutes);
+
+
+
+
 // http://localhost:8080/api/v1/users/register
 
 // The Error Handling Middleware should be placed at the end of all other middleware and route definitions to ensure it captures all errors.
