@@ -24,10 +24,7 @@ const companySchema = Schema(
           type: String,
           trim: true,
         },
-        country: {
-          type: String,
-          trim: true,
-        },
+       
       },
     ],
     companysociallinks: {
@@ -58,6 +55,8 @@ const companySchema = Schema(
       ref: 'CompanyType',
       required: true,
     },
+    //company tyep - client vendor 
+    //company mode of opertion  - c2c c2h , fte [can be slecte ]
     companydocuments: [
       {
         type: Schema.Types.ObjectId,

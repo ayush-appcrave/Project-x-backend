@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "set NODE_ENV=development&& nodemon --watch src --exec \"node src/index.js\"",
     "build": "echo \"No build step required\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed:companytypes": "node src/scripts/seeders/seedCompanyTypes.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

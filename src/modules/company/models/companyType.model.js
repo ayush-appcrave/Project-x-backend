@@ -7,17 +7,15 @@ const companyTypeSchema = Schema(
       enum: Object.values(compnayTypes.type),
       required: [true, 'Please provide the company type name'],
       trim: true,
-      unique: true
+      unique: true,
     },
-    companyvendortype: {
+    companymodeofoperation: [{
       type: String,
       enum: Object.values(compnayTypes.subtypes),
-      required: function () {
-        return this.companytype === compnayTypes.type.VENDOR;
-      },
-    },
+      required: [true, 'Please provide the company mode of operation'],
+    }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const CompanyType = model('CompanyType', companyTypeSchema);

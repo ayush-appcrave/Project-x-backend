@@ -1,4 +1,4 @@
-export const CompanyService = {
+export const CommentService = {
   createUser: async () => {},
 };
 

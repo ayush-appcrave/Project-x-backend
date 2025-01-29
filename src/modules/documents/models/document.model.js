@@ -1,28 +1,35 @@
 import { Schema, model } from 'mongoose';
-import { companyDocumentType } from '../../../constants/company.constants.js';
 const companyDocumentSchema = Schema(
   {
     documentname: {
       type: String,
-      enum: Object.values(companyDocumentType),
+      required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+    },
+    typeid: {
+      type: Schema.Types.ObjectId,
+      refPath: 'type',
       required: true,
     },
     documentfileurl: {
-      type: string,
+      type: String,
       required: true,
     },
-    uploadedby: {
+    createdby: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    updatedby: {
+    modifiedby: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const CompanyDocument = model('CompanyDocument', companyDocumentSchema);
