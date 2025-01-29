@@ -6,29 +6,29 @@ import { userRole } from '../../constants/userRole.constants.js';
 
 const userSchema = new Schema(
   {
-    fullname: {
+    FullName: {
       type: String,
       required: [true, "Please provide the user's name"],
       trim: true,
     },
-    email: {
+    Email: {
       type: String,
       required: [true, "Please provide the user's email"],
       unique: true,
       trim: true,
       lowercase: true,
     },
-    password: {
+    Password: {
       type: String,
       required: true,
       min: 8,
     },
-    role: {
+    Role: {
       type: String,
       enum: Object.values(userRole),
       required: [true, "Please provide the user's role"],
     },
-    refreshToken: {
+    RefreshToken: {
       type: String,
     },
   },
@@ -36,23 +36,23 @@ const userSchema = new Schema(
 );
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+  if (!this.isModified('Password')) {
     next();
   }
-  this.password = await bcrypt.hash(this.password, 10);
+  this.Password = await bcrypt.hash(this.Password, 10);
   next();
 });
 
 userSchema.methods.isPasswordMatch = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return await bcrypt.compare(candidatePassword, this.Password);
 };
 
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
-      fullname: this.fullname,
-      email: this.email,
+      FullName: this.FullName,
+      Email: this.Email,
     },
     config.access_token_secret,
     {

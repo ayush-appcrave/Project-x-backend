@@ -6,59 +6,54 @@ import {
 } from '../../constants/validation.constants.js';
 
 const registerSchema = Joi.object({
-  fullname: Joi.string().required(),
-  email: Joi.string()
+  FullName: Joi.string().required(),
+  Email: Joi.string()
     .required()
     .regex(new RegExp(VALIDATION_REGEX.EMAIL))
     .messages({
       'string.pattern.base': VALIDATION_MESSAGES.EMAIL,
       'string.empty': '{#label} is required',
     }),
-  password: Joi.string()
+  Password: Joi.string()
     .required()
     .regex(new RegExp(VALIDATION_REGEX.PASSWORD))
     .messages({
-      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(
-        ', ',
-      ),
+      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(', '),
       'string.empty': '{#label} is required',
     }),
-  role: Joi.string().valid(...Object.values(userRole)),
+  Role: Joi.string().valid(...Object.values(userRole)).required(),
 });
 
 const loginSchema = Joi.object({
-  email: Joi.string()
+  Email: Joi.string()
     .required()
     .regex(new RegExp(VALIDATION_REGEX.EMAIL))
     .messages({
       'string.pattern.base': VALIDATION_MESSAGES.EMAIL,
       'string.empty': '{#label} is required',
     }),
-  password: Joi.string().required(),
+  Password: Joi.string().required(),
 });
 
 const changePasswordSchema = Joi.object({
-  oldPassword: Joi.string().required(),
-  newPassword: Joi.string()
+  OldPassword: Joi.string().required(),
+  NewPassword: Joi.string()
     .required()
     .regex(new RegExp(VALIDATION_REGEX.PASSWORD))
     .messages({
-      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(
-        ', ',
-      ),
+      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(', '),
       'string.empty': '{#label} is required',
     }),
 });
 
 const updateUserRoleSchema = Joi.object({
-  role: Joi.string()
+  Role: Joi.string()
     .valid(...Object.values(userRole))
     .required()
     .messages({
       'any.only': 'Role must be one of: ' + Object.values(userRole).join(', '),
     }),
 });
-
 
 export {
   changePasswordSchema,

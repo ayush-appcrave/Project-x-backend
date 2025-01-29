@@ -10,15 +10,16 @@ import {
   registerSchema,
   updateUserRoleSchema,
 } from './user.validation.js';
+
 const optionsForAccessTokenCookie = {
   httpOnly: true,
   secure: true,
-  maxAge: parseInt(config.access_token_expiry), // 1 day in milliseconds
+  maxAge: parseInt(config.access_token_expiry),
 };
 const optionsForRefreshTokenCookie = {
   httpOnly: true,
   secure: true,
-  maxAge: parseInt(config.refresh_token_expiry), // 7 days in milliseconds
+  maxAge: parseInt(config.refresh_token_expiry),
 };
 
 const createUser = asyncHandler(async (req, res) => {
@@ -27,12 +28,12 @@ const createUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, error.details[0].message);
   }
 
-  const { fullname, email, password, role } = req.body;
-  const user = await UserService.createUser(fullname, email, password, role);
+  const { FullName, Email, Password, Role } = req.body;
+  const user = await UserService.createUser(FullName, Email, Password, Role);
 
   return res
     .status(201)
-    .json(new ApiResponse(201, user, 'User register successfully'));
+    .json(new ApiResponse(201, user, 'User registered successfully'));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -41,13 +42,13 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, error.details[0].message);
   }
 
-  const { email, password } = req.body;
-  const user = await UserService.loginUser(email, password);
+  const { Email, Password } = req.body;
+  const user = await UserService.loginUser(Email, Password);
 
   return res
     .status(200)
-    .cookie('accessToken', user.accessToken, optionsForAccessTokenCookie)
-    .cookie('refreshToken', user.refreshToken, optionsForRefreshTokenCookie)
+    .cookie('accessToken', user.AccessToken, optionsForAccessTokenCookie)
+    .cookie('refreshToken', user.RefreshToken, optionsForRefreshTokenCookie)
     .json(new ApiResponse(200, user, 'User Logged In Successfully'));
 });
 
@@ -71,11 +72,11 @@ const changeUserPassword = asyncHandler(async (req, res) => {
     throw new ApiError(400, error.details[0].message);
   }
 
-  const { oldPassword, newPassword } = req.body;
+  const { OldPassword, NewPassword } = req.body;
   const user = await UserService.changeUserPassword(
     req.user._id,
-    oldPassword,
-    newPassword,
+    OldPassword,
+    NewPassword,
   );
 
   if (!user) {
@@ -92,13 +93,13 @@ const updateUserRole = asyncHandler(async (req, res) => {
   if (error) {
     throw new ApiError(400, error.details[0].message);
   }
-  const { role } = req.body;
+  const { Role } = req.body;
   const { userId } = req.params;
 
   if (!userId || !isValidObjectId(userId)) {
     throw new ApiError(400, 'Invalid Mongoose Id');
   }
-  const updateUserRole = await UserService.updateUserRole(userId, role);
+  const updateUserRole = await UserService.updateUserRole(userId, Role);
   if (!updateUserRole) {
     throw new ApiError(500, 'Unable To Update User Role');
   }
@@ -108,27 +109,28 @@ const updateUserRole = asyncHandler(async (req, res) => {
       new ApiResponse(200, updateUserRole, 'User role updated successfully'),
     );
 });
+
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const receivedRefreshToken =
-    req.cookies.refreshToken || req.body.refreshToken;
+    req.cookies.refreshToken || req.body.RefreshToken;
 
   if (!receivedRefreshToken) {
     throw new ApiError(401, 'Unauthorized request: Refresh token is missing');
   }
 
-  const { accessToken, refreshToken } = await UserService.refreshAccessToken(
+  const { AccessToken, RefreshToken } = await UserService.refreshAccessToken(
     receivedRefreshToken,
   );
 
   return res
     .status(200)
-    .cookie('accessToken', accessToken, optionsForAccessTokenCookie)
-    .cookie('refreshToken', refreshToken, optionsForRefreshTokenCookie)
+    .cookie('accessToken', AccessToken, optionsForAccessTokenCookie)
+    .cookie('refreshToken', RefreshToken, optionsForRefreshTokenCookie)
     .json(
       new ApiResponse(
         200,
-        { accessToken, refreshToken },
-        'successfully generated Access and refresh token',
+        { AccessToken, RefreshToken },
+        'Successfully generated Access and Refresh Token',
       ),
     );
 });
@@ -145,12 +147,13 @@ const verifyToken = asyncHandler(async (req, res) => {
     valid: true,
     user: {
       _id: req.user._id,
-      fullname: req.user.fullname,
-      email: req.user.email,
-      role: req.user.role,
+      FullName: req.user.FullName,
+      Email: req.user.Email,
+      Role: req.user.Role,
     },
   });
 });
+
 export {
   changeUserPassword,
   createUser,
