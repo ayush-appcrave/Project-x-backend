@@ -6,7 +6,8 @@ import { User } from './user.model.js';
 export const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    if (!user) throw new ApiError(500, 'User not found during token generation');
+    if (!user)
+      throw new ApiError(500, 'User not found during token generation');
 
     const AccessToken = user.generateAccessToken();
     const RefreshToken = user.generateRefreshToken();
@@ -29,7 +30,7 @@ export const UserService = {
       FullName: FullName.toLowerCase(),
       Email: Email.toLowerCase(),
       Password,
-      Role,
+      Role: Number(Role),
     });
     if (!user) throw new ApiError(500, 'User not created');
 
@@ -99,7 +100,7 @@ export const UserService = {
     const updatedUser = await User.findByIdAndUpdate(
       { _id: userId },
       {
-        Role: NewRole,
+        Role: Number(NewRole),
       },
       { new: true },
     ).select('-Password -RefreshToken -__v');

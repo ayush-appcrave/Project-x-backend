@@ -24,8 +24,8 @@ const userSchema = new Schema(
       min: 8,
     },
     Role: {
-      type: String,
-      enum: Object.values(userRole),
+      type: Number, // Change to Number to store the key
+      enum: Object.keys(userRole).map(Number), // Use keys as enum
       required: [true, "Please provide the user's role"],
     },
     RefreshToken: {

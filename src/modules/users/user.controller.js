@@ -47,8 +47,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie('accessToken', user.AccessToken, optionsForAccessTokenCookie)
-    .cookie('refreshToken', user.RefreshToken, optionsForRefreshTokenCookie)
+    .cookie('AccessToken', user.AccessToken, optionsForAccessTokenCookie) 
+    .cookie('RefreshToken', user.RefreshToken, optionsForRefreshTokenCookie) 
     .json(new ApiResponse(200, user, 'User Logged In Successfully'));
 });
 
@@ -61,8 +61,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie('accessToken')
-    .clearCookie('refreshToken')
+    .clearCookie('AccessToken') 
+    .clearCookie('RefreshToken') 
     .json(new ApiResponse(200, {}, 'User Logout successfully'));
 });
 

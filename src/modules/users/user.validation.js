@@ -18,10 +18,17 @@ const registerSchema = Joi.object({
     .required()
     .regex(new RegExp(VALIDATION_REGEX.PASSWORD))
     .messages({
-      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(', '),
+      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(
+        ', ',
+      ),
       'string.empty': '{#label} is required',
     }),
-  Role: Joi.string().valid(...Object.values(userRole)).required(),
+  Role: Joi.number()
+    .valid(...Object.keys(userRole).map(Number)) // Validate keys
+    .required()
+    .messages({
+      'any.only': 'Role must be one of: ' + Object.keys(userRole).join(', '),
+    }),
 });
 
 const loginSchema = Joi.object({
@@ -41,17 +48,19 @@ const changePasswordSchema = Joi.object({
     .required()
     .regex(new RegExp(VALIDATION_REGEX.PASSWORD))
     .messages({
-      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(', '),
+      'string.pattern.base': Object.values(VALIDATION_MESSAGES.PASSWORD).join(
+        ', ',
+      ),
       'string.empty': '{#label} is required',
     }),
 });
 
 const updateUserRoleSchema = Joi.object({
-  Role: Joi.string()
-    .valid(...Object.values(userRole))
+  Role: Joi.number()
+    .valid(...Object.keys(userRole).map(Number)) // Validate keys
     .required()
     .messages({
-      'any.only': 'Role must be one of: ' + Object.values(userRole).join(', '),
+      'any.only': 'Role must be one of: ' + Object.keys(userRole).join(', '),
     }),
 });
 
