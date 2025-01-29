@@ -118,19 +118,21 @@ export const seedCompanyTypes = async () => {
   try {
     // Create vendor type
     await CompanyType.create({
-      companytype: compnayTypes.type.VENDOR,
-      companymodeofoperation: [
-        compnayTypes.modeofoperations.C2C,
-        compnayTypes.modeofoperations.C2H
+      CompanyType: compnayTypes.CompanyType["2"],
+      CompanyModeOfOperation: [
+        compnayTypes.ModeOfOperations["1"],
+        compnayTypes.ModeOfOperations["2"],
+        compnayTypes.ModeOfOperations["3"],
       ]
     });
 
     // Create client type
     await CompanyType.create({
-      companytype: compnayTypes.type.CLIENT,
-      companymodeofoperation: [
-        compnayTypes.modeofoperations.FTE,
-        compnayTypes.modeofoperations.C2H
+      CompanyType: compnayTypes.CompanyType["1"],
+      CompanyModeOfOperation: [
+        compnayTypes.ModeOfOperations["1"],
+        compnayTypes.ModeOfOperations["2"],
+        compnayTypes.ModeOfOperations["3"],
       ]
     });
 

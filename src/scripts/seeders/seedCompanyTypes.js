@@ -7,7 +7,7 @@ import { CompanyType } from '../modules/company/models/companyType.model.js';
  * Usage:
  *    npm run seed:companytypes
  *
- * This script enumerates all permutations (non-empty subsets) of the modeOfOperations
+ * This script enumerates all permutations (non-empty subsets) of the ModeOfOperations
  * for each company type (CLIENT, VENDOR), then seeds them into the database.
  */
 
@@ -37,8 +37,8 @@ const seedCompanyTypes = async () => {
     // The main array of data we will insert
     const data = [];
 
-    // modeofoperations is an object with keys: { C2C, C2H, FTE }
-    const allModes = Object.values(compnayTypes.modeofoperations);
+    // ModeOfOperations is an object with keys: { C2C, C2H, FTE }
+    const allModes = Object.values(compnayTypes.ModeOfOperations);
 
     // Generate all non-empty subsets
     const subsets = getAllSubsets(allModes);

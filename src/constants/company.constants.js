@@ -1,28 +1,29 @@
 export const compnayTypes = {
-  type: {
-    VENDOR: 'vendor',
-    CLIENT: 'client',
+  CompanyType: {
+    1: 'Client',
+    2: 'Vendor',
+
   },
-  modeofoperations: {
-    C2C: 'Contract-to-Contract (C2C)',
-    C2H: 'Contract-to-Hire (C2H)',
-    FTE: 'Full-Time Employment (FTE)',
+  ModeOfOperations: {
+    1: 'Contract-to-Contract (C2C)',
+    2: 'Contract-to-Hire (C2H)',
+    3: 'Full-Time Employment (FTE)',
   },
 };
 export const companyStatus = {
-  REQUEST_PENDING: 'Request Pending',
-  INTRODUCTORY_CONNECT: 'Introductory Connect',
-  NOT_INTERESTED: 'Not Interested',
-  IN_PIPELINE: 'In Pipeline / In Discussion',
-  NDA_RECEIVED: 'NDA Received',
-  NDA_SIGNED: 'NDA Signed',
-  MSA_RECEIVED: 'MSA Received',
-  MSA_SIGNED: 'MSA Signed',
-  ONBOARDED: 'Onboarded',as
+  1: 'Request Pending',
+  2: 'Introductory Connect',
+  3: 'Not Interested',
+  4: 'In Pipeline / In Discussion',
+  5: 'NDA Received',
+  6: 'NDA Signed',
+  7: 'MSA Received',
+  8: 'MSA Signed',
+  9: 'Onboarded',
 };
 
 export const companyDocumentType = {
-  NDA: 'Non-Disclosure Agreement (NDA)',
-  MSA: 'Master Service Agreement (MSA)',
-  OTHER: 'Other',
+  1: 'Non-Disclosure Agreement (NDA)',
+  2: 'Master Service Agreement (MSA)',
+  5: 'Other',
 };
