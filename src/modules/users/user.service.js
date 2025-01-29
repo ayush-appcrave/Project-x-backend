@@ -2,61 +2,59 @@ import jwt from 'jsonwebtoken';
 import { config } from '../../config/appConfig.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { User } from './user.model.js';
+
 export const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    if (!user)
-      throw new ApiError(500, 'User not found during token generation');
+    if (!user) throw new ApiError(500, 'User not found during token generation');
 
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
+    const AccessToken = user.generateAccessToken();
+    const RefreshToken = user.generateRefreshToken();
 
-    user.refreshToken = refreshToken;
+    user.RefreshToken = RefreshToken;
     await user.save({ validateBeforeSave: false });
 
-    return { accessToken, refreshToken };
+    return { AccessToken, RefreshToken };
   } catch (error) {
     throw new ApiError(500, 'Token generation failed');
   }
 };
 
 export const UserService = {
-  createUser: async (fullname, email, password, role) => {
-    const existingUser = await User.findOne({ email: email });
+  createUser: async (FullName, Email, Password, Role) => {
+    const existingUser = await User.findOne({ Email });
     if (existingUser) throw new ApiError(400, 'User already exists');
 
     const user = await User.create({
-      fullname: fullname.toLowerCase(),
-      email: email.toLowerCase(),
-      password,
-      role,
+      FullName: FullName.toLowerCase(),
+      Email: Email.toLowerCase(),
+      Password,
+      Role,
     });
     if (!user) throw new ApiError(500, 'User not created');
 
-    return User.findById(user._id).select('-password -refreshToken -__v');
+    return User.findById(user._id).select('-Password -RefreshToken -__v');
   },
 
-  loginUser: async (email, password) => {
-    const user = await User.findOne({ email: email });
-    console.log(user);
+  loginUser: async (Email, Password) => {
+    const user = await User.findOne({ Email });
     if (!user) throw new ApiError(401, 'User Does not exist');
 
-    const isPasswordValid = await user.isPasswordMatch(password);
+    const isPasswordValid = await user.isPasswordMatch(Password);
     if (!isPasswordValid) throw new ApiError(401, 'Invalid User Password');
 
-    const { accessToken, refreshToken } =
+    const { AccessToken, RefreshToken } =
       await generateAccessTokenAndRefreshToken(user._id);
-    if (!accessToken || !refreshToken)
+    if (!AccessToken || !RefreshToken)
       throw new ApiError(500, 'Token generation failed');
 
     const authResponse = {
-      accessToken,
-      refreshToken,
+      AccessToken,
+      RefreshToken,
       _id: user._id,
-      fullname: user.fullname,
-      email: user.email,
-      name: user.name,
-      role: user.role,
+      FullName: user.FullName,
+      Email: user.Email,
+      Role: user.Role,
     };
 
     return authResponse;
@@ -66,9 +64,9 @@ export const UserService = {
     const loggedInUser = await User.findOneAndUpdate(
       {
         _id: userId,
-        refreshToken: { $exists: true },
+        RefreshToken: { $exists: true },
       },
-      { $unset: { refreshToken: 1 } },
+      { $unset: { RefreshToken: 1 } },
       { new: true },
     );
     if (!loggedInUser) throw new ApiError(500, 'User not found');
@@ -76,18 +74,18 @@ export const UserService = {
     return true;
   },
 
-  changeUserPassword: async (userId, oldPassword, newPassword) => {
+  changeUserPassword: async (userId, OldPassword, NewPassword) => {
     const existingUser = await User.findById(userId);
     if (!existingUser) {
       throw new ApiError(404, 'User account not found');
     }
 
-    const isOldPasswordValid = await existingUser.isPasswordMatch(oldPassword);
+    const isOldPasswordValid = await existingUser.isPasswordMatch(OldPassword);
     if (!isOldPasswordValid) {
       throw new ApiError(401, 'Current password is incorrect');
     }
 
-    existingUser.password = newPassword;
+    existingUser.Password = NewPassword;
     const savedUser = await existingUser.save();
 
     if (!savedUser) {
@@ -97,14 +95,14 @@ export const UserService = {
     return true;
   },
 
-  updateUserRole: async (userId, newRole) => {
+  updateUserRole: async (userId, NewRole) => {
     const updatedUser = await User.findByIdAndUpdate(
       { _id: userId },
       {
-        role: newRole,
+        Role: NewRole,
       },
       { new: true },
-    ).select('-password -refreshToken -__v');
+    ).select('-Password -RefreshToken -__v');
 
     if (!updatedUser) {
       throw new ApiError(400, 'User Not Found');
@@ -128,13 +126,13 @@ export const UserService = {
       throw new ApiError(401, 'Invalid Refresh token');
     }
 
-    if (receivedRefreshToken !== user?.refreshToken) {
+    if (receivedRefreshToken !== user?.RefreshToken) {
       throw new ApiError(401, 'Refresh token is expired or used');
     }
 
-    const { accessToken, refreshToken } =
+    const { AccessToken, RefreshToken } =
       await generateAccessTokenAndRefreshToken(user?._id);
 
-    return { accessToken, refreshToken };
+    return { AccessToken, RefreshToken };
   },
 };
