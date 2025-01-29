@@ -28,12 +28,12 @@ const companySchema = Schema(
       },
     ],
     CompanySocialLinks: {
-      linkedin: {
+      Linkedin: {
         type: String,
         trim: true,
         required: true,
       },
-      website: {
+      Website: {
         type: String,
         trim: true,
       },
