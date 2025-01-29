@@ -1,26 +1,31 @@
 import { Schema, model } from 'mongoose';
 
-//type = vendor type  , client type , inovice type
-//companyid  -> typeid
+// Type represents the category of the comment (VendorType, ClientType, InvoiceType)
+// TypeId refers to the associated document ID of the specific type
 
-const CommentSchema = Schema(
+const CommentSchema = new Schema(
   {
-    ///it will store the type id of company type in it
-    type: {
+    // Stores the type of entity being commented on (Vendor, Client, Invoice, etc.)
+    Type: {
       type: String,
       required: true,
     },
 
-    typeid: {
+    // Reference ID of the associated entity (Vendor, Client, or Invoice)
+    TypeId: {
       type: Schema.Types.ObjectId,
-      refPath: 'type',
+      refPath: 'Type',
       required: true,
     },
-    comment: {
+
+    // The actual comment content
+    Comment: {
       type: String,
       required: true,
     },
-    createdby: {
+
+    // The user who created the comment
+    CreatedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -28,7 +33,9 @@ const CommentSchema = Schema(
   },
   { timestamps: true },
 );
-CommentSchema.index({ type: 1, typeid: 1 });
-CommentSchema.index({ createdby: 1 });
+
+// Indexing for faster queries based on Type and TypeId
+CommentSchema.index({ Type: 1, TypeId: 1 });
+CommentSchema.index({ CreatedBy: 1 });
 
 export const Comment = model('Comment', CommentSchema);

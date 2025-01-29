@@ -1,29 +1,41 @@
 import { Schema, model } from 'mongoose';
-const companyDocumentSchema = Schema(
+
+const CompanyDocumentSchema = new Schema(
   {
-    documentname: {
+    // The name of the document
+    DocumentName: {
       type: String,
       required: true,
     },
-    type: {
+
+    // Stores the type of entity this document belongs to (Vendor, Client, Invoice, etc.)
+    Type: {
       type: String,
       required: true,
     },
-    typeid: {
+
+    // Reference ID of the associated entity
+    TypeId: {
       type: Schema.Types.ObjectId,
-      refPath: 'type',
+      refPath: 'Type',
       required: true,
     },
-    documentfileurl: {
+
+    // URL where the document file is stored
+    DocumentFileUrl: {
       type: String,
       required: true,
     },
-    createdby: {
+
+    // The user who created the document
+    CreatedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    modifiedby: {
+
+    // The user who last modified the document
+    ModifiedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
@@ -32,4 +44,4 @@ const companyDocumentSchema = Schema(
   { timestamps: true },
 );
 
-export const CompanyDocument = model('CompanyDocument', companyDocumentSchema);
+export const CompanyDocument = model('CompanyDocument', CompanyDocumentSchema);

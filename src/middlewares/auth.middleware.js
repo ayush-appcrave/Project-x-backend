@@ -1,23 +1,24 @@
-// import { User } from "../models/user.model.js";
 import jwt from 'jsonwebtoken';
 import { config } from '../config/appConfig.js';
 import { userRole as UserRole } from '../constants/userRole.constants.js';
 import { User } from '../modules/users/user.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+
 export const VerifyJwt = asyncHandler(async (req, res, next) => {
   try {
     const token =
-      req.cookies?.accessToken ||
-      req.header('Authorization')?.replace('Bearer ', ''); //get access token
+      req.cookies?.AccessToken ||
+      req.header('Authorization')?.replace('Bearer ', ''); // Get access token
 
     if (!token || typeof token !== 'string') {
-      throw new ApiError(401, 'authorization token is missing or invalid');
+      throw new ApiError(401, 'Authorization token is missing or invalid');
     }
+
     const decodedToken = jwt.verify(token, config.access_token_secret);
 
     const user = await User.findById(decodedToken?._id).select(
-      '-password -refreshToken',
+      '-Password -RefreshToken',
     );
 
     if (!user) {
@@ -25,7 +26,6 @@ export const VerifyJwt = asyncHandler(async (req, res, next) => {
     }
 
     req.user = user;
-
     next();
   } catch (error) {
     throw new ApiError(401, error?.message || 'Invalid Access Token');
@@ -34,8 +34,8 @@ export const VerifyJwt = asyncHandler(async (req, res, next) => {
 
 export const authorizeRole = (...allowedRoles) => {
   return (req, res, next) => {
-    const userRole = req.user?.role;
-    if (!userRole || !allowedRoles.includes(UserRole)) {
+    const UserRole = req.user?.Role;
+    if (!UserRole || !allowedRoles.includes(UserRole)) {
       throw new ApiError(403, 'You are not authorized to access this resource');
     }
     next();
