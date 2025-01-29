@@ -23,6 +23,7 @@ const optionsForRefreshTokenCookie = {
 };
 
 const createUser = asyncHandler(async (req, res) => {
+  console.log(req.body);
   const { error } = registerSchema.validate(req.body);
   if (error) {
     throw new ApiError(400, error.details[0].message);

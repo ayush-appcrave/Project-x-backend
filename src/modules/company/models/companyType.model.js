@@ -1,17 +1,18 @@
 import { Schema, model } from 'mongoose';
 import { compnayTypes } from '../../../constants/company.constants.js';
-const companyTypeSchema = Schema(
+
+const companyTypeSchema = new Schema(
   {
-    CompanytType: {
-      type: String,
-      enum: Object.values(compnayTypes.type),
+    CompanyType: {
+      type: Number, // Store the key (number) from the constants
+      enum: Object.keys(compnayTypes.CompanyType).map(Number), // Validate against the keys
       required: [true, 'Please provide the company type name'],
       trim: true,
       unique: true,
     },
     CompanyModeOfOperation: [{
-      type: String,
-      enum: Object.values(compnayTypes.subtypes),
+      type: Number, // Store the key (number) from the constants
+      enum: Object.keys(compnayTypes.ModeOfOperations).map(Number), // Validate against the keys
       required: [true, 'Please provide the company mode of operation'],
     }],
   },

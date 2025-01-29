@@ -1,22 +1,24 @@
+import { ApiError } from '../../utils/ApiError.js';
+import { ApiResponse } from '../../utils/ApiResponse.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
+import { CompanyService } from './company.service.js';
 
-const createCompanyType = asyncHandler(async (req, res) => {
-  const company_request = req.body;
-  console.log(company_request);
+const createCompany = asyncHandler(async (req, res) => {
+  const companyData = req.body;
+  const createdBy = req.user._id;
+
+  const company = await CompanyService.createCompany({
+    ...companyData,
+    CreatedBy: createdBy,
+  });
+
+  if (!company) {
+    throw new ApiError(500, 'Failed to create company');
+  }
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, company, 'Company created successfully'));
 });
 
-const getCompanyList = asyncHandler(async (req, res) => {});
-
-const getCompanyDetailsById = asyncHandler(async (req, res) => {});
-
-const updateCompanyDetails = asyncHandler(async (req, res) => {});
-
-const updateCompanyStatus = asyncHandler(async (req, res) => {});
-
-export {
-  createCompanyType,
-  getCompanyList,
-  getCompanyDetailsById,
-  updateCompanyDetails,
-  updateCompanyStatus,
-};
+export { createCompany };

@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { companyStatus } from '../../../constants/company.constants.js';
-const companySchema = Schema(
+
+const companySchema = new Schema(
   {
     CompanyName: {
       type: String,
@@ -24,7 +25,6 @@ const companySchema = Schema(
           type: String,
           trim: true,
         },
-       
       },
     ],
     CompanySocialLinks: {
@@ -46,8 +46,8 @@ const companySchema = Schema(
       match: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
     },
     CompanyStatus: {
-      type: String,
-      enum: Object.values(companyStatus),
+      type: Number, // Store the key (number) from the constants
+      enum: Object.keys(companyStatus).map(Number), // Validate against the keys
       required: true,
     },
     CompanyTypeID: {
@@ -55,8 +55,6 @@ const companySchema = Schema(
       ref: 'CompanyType',
       required: true,
     },
-    //company tyep - client vendor 
-    //company mode of opertion  - c2c c2h , fte [can be slecte ]
     CompanyDocuments: [
       {
         type: Schema.Types.ObjectId,
