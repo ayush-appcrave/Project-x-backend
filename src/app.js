@@ -35,3 +35,5 @@ app.use('/api/v1/company',companyRoutes);
 app.use(errorHandler);
 
 export { app };
+
+
