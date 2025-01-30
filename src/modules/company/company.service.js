@@ -1,18 +1,24 @@
 import { ApiError } from '../../utils/ApiError.js';
 import { Company } from './models/company.model.js';
-import { CompanyType } from './models/companyType.model.js';
 
 const CompanyService = {
-  createCompany: async (companyData) => {
-    const { CompanyTypeID, ...rest } = companyData;
+  createCompany: async (companyData, createdBy) => {
+    console.log(companyData);
+    const { CompanyType, ModeOfOperations, ...rest } = companyData;
 
-    // Check if CompanyType exists
-    const companyType = await CompanyType.findById(CompanyTypeID);
-    if (!companyType) {
-      throw new ApiError(404, 'CompanyType not found');
+    // Create the company
+    const company = await Company.create({
+      ...rest,
+
+      CompanyType: Number(CompanyType),
+      ModeOfOperations: ModeOfOperations.map(Number),
+      CreatedBy: createdBy,
+      ModifiedBy: createdBy,
+    });
+
+    if (!company) {
+      throw new ApiError(500, 'Failed to create company');
     }
-
-    const company = await Company.create({ ...rest, CompanyTypeID });
 
     return company;
   },

@@ -1,5 +1,8 @@
 import { Schema, model } from 'mongoose';
-import { companyStatus } from '../../../constants/company.constants.js';
+import {
+  companyStatus,
+  compnayTypes,
+} from '../../../constants/company.constants.js';
 
 const companySchema = new Schema(
   {
@@ -15,18 +18,31 @@ const companySchema = new Schema(
       trim: true,
       lowercase: true,
     },
-    CompanyAddress: [
-      {
-        city: {
-          type: String,
-          trim: true,
-        },
-        state: {
-          type: String,
-          trim: true,
-        },
-      },
-    ],
+    CompanyGst: {
+      type: String,
+      trim: true,
+
+      match: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+    },
+    CompanyType: {
+      type: Number,
+      enum: Object.keys(compnayTypes.CompanyType).map(Number),
+      required: true,
+    },
+    CompanyStatus: {
+      type: Number, // Store the key (number) from the constants
+      enum: Object.keys(companyStatus).map(Number), // Validate against the keys
+      required: true,
+    },
+    ModeOfOperations: {
+      type: [Number],
+      enum: Object.keys(compnayTypes.ModeOfOperations).map(Number),
+      required: true,
+    },
+    CompanyAddress: {
+      City: { type: String, trim: true },
+      State: { type: String, trim: true },
+    },
     CompanySocialLinks: {
       Linkedin: {
         type: String,
@@ -38,31 +54,9 @@ const companySchema = new Schema(
         trim: true,
       },
     },
-    CompanyGst: {
-      type: String,
-      trim: true,
-      unique: true,
-      length: 15,
-      match: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
-    },
-    CompanyStatus: {
-      type: Number, // Store the key (number) from the constants
-      enum: Object.keys(companyStatus).map(Number), // Validate against the keys
-      required: true,
-    },
-    CompanyTypeID: {
-      type: Schema.Types.ObjectId,
-      ref: 'CompanyType',
-      required: true,
-    },
-    CompanyDocuments: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'CompanyDocument',
-      },
-    ],
     PocName: {
       type: String,
+      trim: true,
     },
     PocContact: {
       type: String,
@@ -74,6 +68,12 @@ const companySchema = new Schema(
       trim: true,
       lowercase: true,
     },
+    CompanyDocument: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'CompanyDocument',
+      },
+    ],
     CreatedBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -85,7 +85,7 @@ const companySchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Company = model('Company', companySchema);

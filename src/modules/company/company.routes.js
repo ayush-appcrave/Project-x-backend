@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { CompanyController } from './company.controller.js';
+import { createCompany } from './company.controller.js';
 import { VerifyJwt } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
