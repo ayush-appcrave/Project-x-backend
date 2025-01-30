@@ -112,27 +112,27 @@ export const createCompany = asyncHandler(async (req, res) => {
 
 // modules/seeder/companyType.seeder.js
 import { CompanyType } from '../company/models/companyType.model.js';
-import { compnayTypes } from '../../constants/company.constants.js';
+import { companyTypes } from '../../constants/company.constants.js';
 
 export const seedCompanyTypes = async () => {
   try {
     // Create vendor type
     await CompanyType.create({
-      CompanyType: compnayTypes.CompanyType["2"],
+      CompanyType: companyTypes.CompanyType["2"],
       CompanyModeOfOperation: [
-        compnayTypes.ModeOfOperations["1"],
-        compnayTypes.ModeOfOperations["2"],
-        compnayTypes.ModeOfOperations["3"],
+        companyTypes.ModeOfOperations["1"],
+        companyTypes.ModeOfOperations["2"],
+        companyTypes.ModeOfOperations["3"],
       ]
     });
 
     // Create client type
     await CompanyType.create({
-      CompanyType: compnayTypes.CompanyType["1"],
+      CompanyType: companyTypes.CompanyType["1"],
       CompanyModeOfOperation: [
-        compnayTypes.ModeOfOperations["1"],
-        compnayTypes.ModeOfOperations["2"],
-        compnayTypes.ModeOfOperations["3"],
+        companyTypes.ModeOfOperations["1"],
+        companyTypes.ModeOfOperations["2"],
+        companyTypes.ModeOfOperations["3"],
       ]
     });
 

@@ -1,4 +1,4 @@
-export const compnayTypes = {
+export const companyTypes = {
   CompanyType: {
     1: 'Client',
     2: 'Vendor',

@@ -1,14 +1,14 @@
 import Joi from 'joi';
 import {
   companyStatus,
-  compnayTypes,
+  companyTypes,
 } from '../../constants/company.constants.js';
 
 export const createCompanySchema = Joi.object({
   CompanyName: Joi.string().required().trim(),
   CompanyEmail: Joi.string().email().required().trim(),
   CompanyType: Joi.number()
-    .valid(...Object.keys(compnayTypes.CompanyType).map(Number))
+    .valid(...Object.keys(companyTypes.CompanyType).map(Number))
     .required(),
   CompanyAddress: Joi.object({
     City: Joi.string().required().trim(),
@@ -18,15 +18,7 @@ export const createCompanySchema = Joi.object({
     Linkedin: Joi.string().uri().required().trim(),
     Website: Joi.string().uri().allow('').trim(),
   }).required(),
-  CompanyGst: Joi.string()
-    .trim()
-    .allow('') // Allow empty string
-    .when('this', {
-      is: (value) => value && value.length > 0, // If GST is not empty
-      then: Joi.string()
-        .pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/)
-        .message('Invalid GST format. Format: 22AAAAA0000A1Z5'),
-    }),
+  CompanyGst: Joi.string().trim().allow(''), // Allow empty string
 
   CompanyStatus: Joi.number()
     .valid(...Object.keys(companyStatus).map(Number))
@@ -34,7 +26,7 @@ export const createCompanySchema = Joi.object({
   ModeOfOperations: Joi.array()
     .items(
       Joi.number().valid(
-        ...Object.keys(compnayTypes.ModeOfOperations).map(Number),
+        ...Object.keys(companyTypes.ModeOfOperations).map(Number),
       ),
     )
     .min(1)

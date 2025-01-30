@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import {
   companyStatus,
-  compnayTypes,
+  companyTypes,
 } from '../../../constants/company.constants.js';
 
 const companySchema = new Schema(
@@ -21,12 +21,10 @@ const companySchema = new Schema(
     CompanyGst: {
       type: String,
       trim: true,
-
-      match: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
     },
     CompanyType: {
       type: Number,
-      enum: Object.keys(compnayTypes.CompanyType).map(Number),
+      enum: Object.keys(companyTypes.CompanyType).map(Number),
       required: true,
     },
     CompanyStatus: {
@@ -36,7 +34,7 @@ const companySchema = new Schema(
     },
     ModeOfOperations: {
       type: [Number],
-      enum: Object.keys(compnayTypes.ModeOfOperations).map(Number),
+      enum: Object.keys(companyTypes.ModeOfOperations).map(Number),
       required: true,
     },
     CompanyAddress: {

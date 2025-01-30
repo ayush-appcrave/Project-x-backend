@@ -2,8 +2,7 @@ import { ApiError } from '../../utils/ApiError.js';
 import { Company } from './models/company.model.js';
 
 const CompanyService = {
-
-  //Used to create a new company
+  // Used to create a new company
   createCompany: async (companyData, createdBy) => {
     console.log(companyData);
     const { CompanyType, ModeOfOperations, ...rest } = companyData;
@@ -11,7 +10,6 @@ const CompanyService = {
     // Create the company
     const company = await Company.create({
       ...rest,
-
       CompanyType: Number(CompanyType),
       ModeOfOperations: ModeOfOperations.map(Number),
       CreatedBy: createdBy,
@@ -25,6 +23,7 @@ const CompanyService = {
     return company;
   },
 
+  // Fetches company details by ID
   getCompanyDetail: async (companyID) => {
     console.log('Getting Company Detail with ID', companyID);
 
@@ -43,7 +42,36 @@ const CompanyService = {
     } catch (error) {
       throw new ApiError(500, 'Error fetching company details');
     }
-  }
+  },
+
+  // Updates an existing company
+  updateCompany: async (companyID, updateData, modifiedBy) => {
+    console.log(`Updating Company with ID ${companyID}`);
+
+    if (!companyID) {
+      throw new ApiError(400, 'Company ID is required');
+    }
+
+    try {
+      const updatedCompany = await Company.findByIdAndUpdate(
+        companyID,
+        {
+          ...updateData,
+          ModeOfOperations: updateData.ModeOfOperations.map(Number), // Ensure it's an array of numbers
+          ModifiedBy: modifiedBy, // Track who modified it
+        },
+        { new: true, runValidators: true } // Return the updated document & enforce validation
+      );
+
+      if (!updatedCompany) {
+        throw new ApiError(404, 'Company not found');
+      }
+
+      return updatedCompany;
+    } catch (error) {
+      throw new ApiError(500, `Error updating company: ${error.message}`);
+    }
+  },
 };
 
 export { CompanyService };
