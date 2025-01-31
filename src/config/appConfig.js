@@ -1,6 +1,5 @@
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
-
 const getEnvVar = (key, defaultValue) => {
   const value = process.env[key];
   if (!value) {
@@ -20,7 +19,8 @@ const config = {
   access_token_expiry: getEnvVar('ACCESS_TOKEN_EXPIRY', '3600000'), // Default to 1 hour
   refresh_token_secret: getEnvVar('REFRESH_TOKEN_SECRET'),
   refresh_token_expiry: getEnvVar('REFRESH_TOKEN_EXPIRY', '86400000'), // Default to 1 day
-  isDevelopment: getEnvVar('NODE_ENV', 'development') === 'development',
+  isDevelopment: process.env.NODE_ENV === 'development',
+  uploadsDir: getEnvVar('UPLOADS_DIR', 'uploads'),
 };
 
 Object.freeze(config);

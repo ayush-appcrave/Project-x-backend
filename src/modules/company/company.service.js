@@ -46,8 +46,6 @@ const CompanyService = {
 
   // Updates an existing company
   updateCompany: async (companyID, updateData, modifiedBy) => {
-    console.log(`Updating Company with ID ${companyID}`);
-
     if (!companyID) {
       throw new ApiError(400, 'Company ID is required');
     }
