@@ -64,9 +64,6 @@ const DocumentService = {
     if (!documents) {
       throw new ApiError(404, 'No documents found');
     }
-    if (!documents.docs || documents.docs.length === 0) {
-      throw new ApiError(404, 'No documents found');
-    }
 
     return {
       totalDocs: documents.totalDocs,
@@ -88,7 +85,6 @@ const DocumentService = {
     try {
       // Delete file from filesystem
       await fs.unlink(filePath);
-
       // Delete document from database
       await Document.findByIdAndDelete(documentId);
 
