@@ -20,12 +20,14 @@ app.use(cookieParser()); // use for cookies handling on server level
 app.use(requestTracer);
 
 import companyRoutes from './modules/company/company.routes.js';
-import documentRoutes from './modules/documents/dcoument.routes.js';
+import documentRoutes from './modules/documents/document.routes.js';
 import userRoutes from './modules/users/user.routes.js';
+import commentRoutes from './modules/comments/comment.routes.js';
 //Routes Declarations
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/company', companyRoutes);
 app.use('/api/v1/document', documentRoutes);
+app.use('/api/v1/comment',commentRoutes);
 
 // http://localhost:8080/api/v1/users/register
 

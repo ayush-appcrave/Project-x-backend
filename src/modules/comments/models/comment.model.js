@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 // Type represents the category of the comment (VendorType, ClientType, InvoiceType)
-// TypeId refers to the associated document ID of the specific type
+// TypeId refers to the associated Comment ID of the specific type
 
 const CommentSchema = new Schema(
   {

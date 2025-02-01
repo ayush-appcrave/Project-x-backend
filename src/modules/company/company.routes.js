@@ -4,8 +4,10 @@ import { createCompany, getCompanyDetail, updateCompany } from './company.contro
 
 const router = Router();
 
-router.route('/create-company').post(VerifyJwt, createCompany);
-router.route('/company-detail/:companyID').get(VerifyJwt, getCompanyDetail);
-router.route('/update-company/:companyID').put(VerifyJwt, updateCompany); // New PUT route
+router.use(VerifyJwt);
+
+router.route('/create-company').post(createCompany);
+router.route('/company-detail/:companyID').get(getCompanyDetail);
+router.route('/update-company/:companyID').put(updateCompany); // New PUT route
 
 export default router;
