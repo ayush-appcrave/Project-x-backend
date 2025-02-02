@@ -31,7 +31,7 @@ const CommentSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 // Indexing for faster queries based on Type and TypeId

@@ -9,7 +9,6 @@ const createComment = asyncHandler(async (req, res) => {
   if (error) {
     throw new ApiError(400, error.details[0].message);
   }
-
   const newComment = await CommentService.createComment(req.body, req.user._id);
 
   return res.status(201).json(new ApiResponse(201, newComment, 'Comment added successfully'));
@@ -40,4 +39,17 @@ const deleteComment = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, null, 'Comment deleted successfully'));
 });
 
-export { createComment, getComments, deleteComment };
+const updateComment = asyncHandler(async (req, res) => {
+  const { commentId } = req.params;
+  const { Comment: commentText } = req.body;
+
+  if (!commentId || !commentText) {
+    throw new ApiError(400, 'Comment ID and text are required');
+  }
+
+  const updatedComment = await CommentService.updateComment(commentId, commentText);
+
+  return res.status(200).json(new ApiResponse(200, updatedComment, 'Comment updated successfully'));
+});
+
+export { createComment, deleteComment, getComments, updateComment };
