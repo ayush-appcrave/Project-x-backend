@@ -1,10 +1,8 @@
 import { Schema, model } from 'mongoose';
-import {
-  companyStatus,
-  companyTypes,
-} from '../../../constants/company.constants.js';
+import aggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import { companyStatus, companyTypes } from '../../../constants/company.constants.js';
 
-const companySchema = new Schema(
+const CompanySchema = new Schema(
   {
     CompanyName: {
       type: String,
@@ -83,7 +81,8 @@ const companySchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
+CompanySchema.plugin(aggregatePaginate);
 
-export const Company = model('Company', companySchema);
+export const Company = model('Company', CompanySchema);

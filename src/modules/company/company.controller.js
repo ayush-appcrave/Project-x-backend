@@ -45,4 +45,35 @@ const updateCompany = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, updatedCompany, 'Company updated successfully'));
 });
 
-export { createCompany, getCompanyDetail, updateCompany };
+const getCompanyListing = asyncHandler(async (req, res) => {
+  const { type, status, page = 1, limit = 50, search = '' } = req.query; // Get filters
+
+  // Ensure `type` is provided and is a valid number
+  if (!type || isNaN(type)) {
+    throw new ApiError(400, 'Company type is required and must be a valid number');
+  }
+
+  // Ensure `page` and `limit` are valid numbers
+  const pageNum = parseInt(page, 10);
+  const pageSize = parseInt(limit, 10);
+
+  if (pageNum < 1 || isNaN(pageNum)) {
+    throw new ApiError(400, 'Page number must be a positive integer');
+  }
+  if (pageSize < 1 || isNaN(pageSize)) {
+    throw new ApiError(400, 'Limit must be a positive integer');
+  }
+
+  const companies = await CompanyService.getCompanyListing({
+    type,
+    status,
+    page: pageNum,
+    limit: pageSize,
+    search,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, companies, 'Fetched Company Listing successfully'));
+});
+export { createCompany, getCompanyDetail, getCompanyListing, updateCompany };
