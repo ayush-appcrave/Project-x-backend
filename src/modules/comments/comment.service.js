@@ -17,7 +17,7 @@ const CommentService = {
     if (!newComment) {
       throw new ApiError(500, 'Failed to save comment');
     }
-
+    
     const populatedComment = await Comment.findById(newComment._id).populate(
       'CreatedBy',
       'FullName Email'
