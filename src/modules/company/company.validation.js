@@ -1,8 +1,5 @@
 import Joi from 'joi';
-import {
-  companyStatus,
-  companyTypes,
-} from '../../constants/company.constants.js';
+import { companyStatus, companyTypes } from '../../constants/company.constants.js';
 
 export const createCompanySchema = Joi.object({
   CompanyName: Joi.string().required().trim(),
@@ -24,14 +21,14 @@ export const createCompanySchema = Joi.object({
     .valid(...Object.keys(companyStatus).map(Number))
     .required(),
   ModeOfOperations: Joi.array()
-    .items(
-      Joi.number().valid(
-        ...Object.keys(companyTypes.ModeOfOperations).map(Number),
-      ),
-    )
+    .items(Joi.number().valid(...Object.keys(companyTypes.ModeOfOperations).map(Number)))
     .min(1)
     .required(),
-  PocName: Joi.string().allow('').trim(),
-  PocContact: Joi.string().allow('').trim(),
-  PocEmail: Joi.string().email().allow('').trim(),
+  PocName: Joi.string().required().trim(), // Now required
+  PocContact: Joi.string()
+    .pattern(/^[0-9]{10}$/) // Ensures exactly 10 digits
+    .required()
+    .trim()
+    .messages({ 'string.pattern.base': 'POC contact must be a valid 10-digit number' }),
+  PocEmail: Joi.string().email().required().trim(), // Now required
 });
