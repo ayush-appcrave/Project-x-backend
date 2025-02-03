@@ -36,10 +36,6 @@ const CommentService = {
       .lean() // Convert to plain JSON
       .sort({ createdAt: -1 });
 
-    if (!comments || comments.length === 0) {
-      throw new ApiError(404, 'No comments found');
-    }
-
     return comments;
   },
 
