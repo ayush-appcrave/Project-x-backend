@@ -43,7 +43,7 @@ const updateRequirement = asyncHandler(async (req, res) => {
 });
 
 const getRequirementListing = asyncHandler(async (req, res) => {
-  const { status, page = 1, limit = 50, search = '' } = req.query;
+  const { status, priority, contract_type, requirement_by, page = 1, limit = 50, search = '' } = req.query;
 
   // Ensure `page` and `limit` are valid numbers
   const pageNum = parseInt(page, 10);
@@ -58,6 +58,9 @@ const getRequirementListing = asyncHandler(async (req, res) => {
 
   const requirements = await RequirementService.getRequirementListing({
     status,
+    priority,
+    contract_type,
+    requirement_by,
     page: pageNum,
     limit: pageSize,
     search,
@@ -66,4 +69,16 @@ const getRequirementListing = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, requirements, 'Fetched Requirement Listing successfully'));
 });
 
-export { createRequirement, getRequirementDetail, getRequirementListing, updateRequirement };
+const deleteRequirement = asyncHandler(async (req, res) => {
+  const { requirementID } = req.params;
+
+  if (!requirementID) {
+    throw new ApiError(400, 'Requirement ID is required');
+  }
+
+  await RequirementService.deleteRequirement(requirementID);
+
+  return res.status(200).json(new ApiResponse(200, {}, 'Requirement deleted successfully'));
+});
+
+export { createRequirement, getRequirementDetail, getRequirementListing, updateRequirement, deleteRequirement};
