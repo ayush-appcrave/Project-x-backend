@@ -23,11 +23,13 @@ import companyRoutes from './modules/company/company.routes.js';
 import documentRoutes from './modules/documents/document.routes.js';
 import userRoutes from './modules/users/user.routes.js';
 import commentRoutes from './modules/comments/comment.routes.js';
+import requirementRoutes from './modules/requirements/requirement.routes.js'
 //Routes Declarations
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/company', companyRoutes);
 app.use('/api/v1/document', documentRoutes);
 app.use('/api/v1/comment',commentRoutes);
+app.use('/api/v1/requirement',requirementRoutes);
 
 // http://localhost:8080/api/v1/users/register
 
