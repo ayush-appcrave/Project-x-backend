@@ -155,6 +155,10 @@ const verifyToken = asyncHandler(async (req, res) => {
   });
 });
 
+const getAllUsers = asyncHandler(async(req,res)=>{
+  const users = await UserService.getAllUsers();
+  return res.status(200).json(new ApiResponse(200,users,'All Users'));
+})
 export {
   changeUserPassword,
   createUser,
@@ -163,4 +167,5 @@ export {
   refreshAccessToken,
   updateUserRole,
   verifyToken,
+  getAllUsers
 };

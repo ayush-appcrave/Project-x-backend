@@ -31,4 +31,6 @@ export const createCompanySchema = Joi.object({
     .trim()
     .messages({ 'string.pattern.base': 'POC contact must be a valid 10-digit number' }),
   PocEmail: Joi.string().email().required().trim(), // Now required
+  AssignedTo: Joi.string().required(),
+  Remarks: Joi.string().trim().allow(''), // Optional remarks field
 });

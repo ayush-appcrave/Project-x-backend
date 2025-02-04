@@ -5,7 +5,7 @@ const CompanyService = {
   // Used to create a new company
   createCompany: async (companyData, createdBy) => {
     console.log(companyData);
-    const { CompanyType, ModeOfOperations, ...rest } = companyData;
+    const { CompanyType, ModeOfOperations ,...rest } = companyData;
 
     // Create the company
     const company = await Company.create({
@@ -15,6 +15,7 @@ const CompanyService = {
       CreatedBy: createdBy,
       ModifiedBy: createdBy,
     });
+    
 
     if (!company) {
       throw new ApiError(500, 'Failed to create company');
@@ -108,6 +109,8 @@ const CompanyService = {
             PocName: 1,
             PocEmail: 1,
             PocContact: 1,
+            AssignedTo: 1,
+            Remarks: 1,
             updatedAt: 1, // Required for sorting
           },
         },
@@ -134,3 +137,4 @@ const CompanyService = {
 };
 
 export { CompanyService };
+
