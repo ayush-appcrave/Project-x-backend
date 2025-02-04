@@ -1,117 +1,129 @@
 import { ApiError } from '../../utils/ApiError.js';
-import { Company } from './models/company.model.js';
+import { Requirement } from './models/requirement.model.js';
 
-const CompanyService = {
-  // Used to create a new company
-  createCompany: async (companyData, createdBy) => {
-    console.log(companyData);
-    const { CompanyType, ModeOfOperations, ...rest } = companyData;
+const RequirementService = {
+  // Create a new requirement
+  createRequirement: async (requirementData, createdBy) => {
+    console.log(requirementData);
+    const { requirement_by, priority, status, contract_type, ...rest } = requirementData;
 
-    // Create the company
-    const company = await Company.create({
+    // Create the requirement
+    const requirement = await Requirement.create({
       ...rest,
-      CompanyType: Number(CompanyType),
-      ModeOfOperations: ModeOfOperations.map(Number),
-      CreatedBy: createdBy,
-      ModifiedBy: createdBy,
+      requirement_by: requirement_by, // Reference to company
+      priority: Number(priority),
+      status: Number(status),
+      contract_type: Number(contract_type),
+      created_by: createdBy,
+      modified_by: createdBy,
     });
 
-    if (!company) {
-      throw new ApiError(500, 'Failed to create company');
+    if (!requirement) {
+      throw new ApiError(500, 'Failed to create requirement');
     }
 
-    return company;
+    return requirement;
   },
 
-  // Fetches company details by ID
-  getCompanyDetail: async (companyID) => {
-    console.log('Getting Company Detail with ID', companyID);
+  // Fetch requirement details by ID
+  getRequirementDetail: async (requirementID) => {
+    console.log('Getting Requirement Detail with ID', requirementID);
 
-    if (!companyID) {
-      throw new ApiError(400, 'Company ID is required');
+    if (!requirementID) {
+      throw new ApiError(400, 'Requirement ID is required');
     }
 
     try {
-      const company = await Company.findById(companyID);
+      const requirement = await Requirement.findById(requirementID).populate('requirement_by');
 
-      if (!company) {
-        throw new ApiError(404, 'Company not found');
+      if (!requirement) {
+        throw new ApiError(404, 'Requirement not found');
       }
 
-      return company;
+      return requirement;
     } catch (error) {
-      throw new ApiError(500, 'Error fetching company details');
+      throw new ApiError(500, 'Error fetching requirement details');
     }
   },
 
-  // Updates an existing company
-  updateCompany: async (companyID, updateData, modifiedBy) => {
-    if (!companyID) {
-      throw new ApiError(400, 'Company ID is required');
+  // Update an existing requirement
+  updateRequirement: async (requirementID, updateData, modifiedBy) => {
+    if (!requirementID) {
+      throw new ApiError(400, 'Requirement ID is required');
     }
 
     try {
-      const updatedCompany = await Company.findByIdAndUpdate(
-        companyID,
+      const updatedRequirement = await Requirement.findByIdAndUpdate(
+        requirementID,
         {
           ...updateData,
-          ModeOfOperations: updateData.ModeOfOperations.map(Number), // Ensure it's an array of numbers
-          ModifiedBy: modifiedBy, // Track who modified it
+          modified_by: modifiedBy,
         },
-        { new: true, runValidators: true } // Return the updated document & enforce validation
+        { new: true, runValidators: true }
       );
 
-      if (!updatedCompany) {
-        throw new ApiError(404, 'Company not found');
+      if (!updatedRequirement) {
+        throw new ApiError(404, 'Requirement not found');
       }
 
-      return updatedCompany;
+      return updatedRequirement;
     } catch (error) {
-      throw new ApiError(500, `Error updating company: ${error.message}`);
+      throw new ApiError(500, `Error updating requirement: ${error.message}`);
     }
   },
-  getCompanyListing: async ({ type, status, page = 1, limit = 50, search = '' }) => {
+
+  // Fetch requirement listing with filters and pagination
+  getRequirementListing: async ({ status, page = 1, limit = 50, search = '' }) => {
     try {
       const pageNum = parseInt(page, 10) || 1;
       const pageSize = parseInt(limit, 10) || 50;
 
-      // Filtering by type and status
-      const matchType = { CompanyType: Number(type) };
-      if (status) matchType.CompanyStatus = Number(status);
+      const matchStatus = status ? { status: Number(status) } : {};
 
       // Keyword search across multiple fields
       const searchQuery = search
         ? {
             $or: [
-              { CompanyName: { $regex: search, $options: 'i' } }, // Case-insensitive search
-              { CompanyEmail: { $regex: search, $options: 'i' } },
-              { PocName: { $regex: search, $options: 'i' } },
-              { PocEmail: { $regex: search, $options: 'i' } },
-              { PocContact: { $regex: search, $options: 'i' } },
-              { 'CompanyAddress.City': { $regex: search, $options: 'i' } },
-              { 'CompanyAddress.State': { $regex: search, $options: 'i' } },
+              { requirement_title: { $regex: search, $options: 'i' } },
+              { location: { $regex: search, $options: 'i' } },
+              { job_description: { $regex: search, $options: 'i' } },
+              { skills: { $regex: search, $options: 'i' } },
             ],
           }
         : {};
 
-      const companiesPipeline = [
-        { $match: { ...matchType, ...searchQuery } },
+      const requirementsPipeline = [
+        { $match: { ...matchStatus, ...searchQuery } },
+        {
+          $lookup: {
+            from: 'companies',
+            localField: 'requirement_by',
+            foreignField: '_id',
+            as: 'companyDetails',
+          },
+        },
+        { $unwind: { path: '$companyDetails', preserveNullAndEmptyArrays: true } },
         {
           $project: {
             _id: 1,
-            CompanyName: 1,
-            CompanyEmail: 1,
-            ModeOfOperations: 1,
-            'CompanyAddress.City': 1,
-            'CompanyAddress.State': 1,
-            CompanyStatus: 1,
-            PocName: 1,
-            PocEmail: 1,
-            PocContact: 1,
+            requirement_title: 1,
+            requirement_by: '$companyDetails.CompanyName',
+            number_of_positions: 1,
+            assigned_to: 1,
+            location: 1,
+            job_description: 1,
+            skills: 1,
+            budget: 1,
+            experience: 1,
+            priority: 1,
+            status: 1,
+            contract_type: 1,
+            payroll: 1,
+            remarks: 1,
             updatedAt: 1, // Required for sorting
           },
         },
-        { $sort: { updatedAt: -1 } }, // Sort by latest updated
+        { $sort: { updatedAt: -1 } },
       ];
 
       const options = {
@@ -119,18 +131,17 @@ const CompanyService = {
         limit: pageSize,
       };
 
-      const result = await Company.aggregatePaginate(Company.aggregate(companiesPipeline), options);
-      console.log('Result:', result);
+      const result = await Requirement.aggregatePaginate(Requirement.aggregate(requirementsPipeline), options);
       return {
-        data: result.docs, // Paginated data
+        data: result.docs,
         currentPage: result.page,
         totalPages: result.totalPages,
         totalRecords: result.totalDocs,
       };
     } catch (error) {
-      throw new ApiError(500, `Error fetching company listings: ${error.message}`);
+      throw new ApiError(500, `Error fetching requirement listings: ${error.message}`);
     }
   },
 };
 
-export { CompanyService };
+export { RequirementService };

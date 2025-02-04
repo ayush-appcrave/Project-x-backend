@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
 import aggregatePaginate from 'mongoose-aggregate-paginate-v2';
 import { requirementPriority, requirementStatus, requirementContractType } from '../../../constants/requirement.constants.js';
-import { Company } from './Company.Model.js';
-import { User } from './User.Model.js';
+import { Company } from '../../company/models/company.model.js';
+import { User } from '../../users/user.model.js';
 
 const RequirementSchema = new Schema(
   {
@@ -13,7 +13,7 @@ const RequirementSchema = new Schema(
     },
     requirement_by: {
       type: Schema.Types.ObjectId,
-      ref: Company,
+      ref: 'Company',
       required: true,
     },
     number_of_positions: {
@@ -22,7 +22,7 @@ const RequirementSchema = new Schema(
     },
     assigned_to: {
       type: Schema.Types.ObjectId,
-      ref: User,
+      ref: 'User',
       required: true,
     },
     location: {

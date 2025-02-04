@@ -23,7 +23,7 @@ import companyRoutes from './modules/company/company.routes.js';
 import documentRoutes from './modules/documents/document.routes.js';
 import userRoutes from './modules/users/user.routes.js';
 import commentRoutes from './modules/comments/comment.routes.js';
-import requirementRoutes from './modules/requirements/requirement.routes.js'
+import requirementRoutes from './modules/requirement/requirement.routes.js'
 //Routes Declarations
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/company', companyRoutes);
