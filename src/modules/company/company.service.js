@@ -5,7 +5,7 @@ const CompanyService = {
   // Used to create a new company
   createCompany: async (companyData, createdBy) => {
     console.log(companyData);
-    const { CompanyType, ModeOfOperations ,...rest } = companyData;
+    const { CompanyType, ModeOfOperations, ...rest } = companyData;
 
     // Create the company
     const company = await Company.create({
@@ -15,7 +15,6 @@ const CompanyService = {
       CreatedBy: createdBy,
       ModifiedBy: createdBy,
     });
-    
 
     if (!company) {
       throw new ApiError(500, 'Failed to create company');
@@ -71,7 +70,7 @@ const CompanyService = {
       throw new ApiError(500, `Error updating company: ${error.message}`);
     }
   },
-  getCompanyListing: async ({ type, status, page = 1, limit = 50, search = '' }) => {
+  getCompanyListing: async ({ type, status, assigned, page = 1, limit = 50, search = '' }) => {
     try {
       const pageNum = parseInt(page, 10) || 1;
       const pageSize = parseInt(limit, 10) || 50;
@@ -79,6 +78,7 @@ const CompanyService = {
       // Filtering by type and status
       const matchType = { CompanyType: Number(type) };
       if (status) matchType.CompanyStatus = Number(status);
+      if (assigned) matchType.AssignedTo = new mongoose.Types.ObjectId(assigned);
 
       // Keyword search across multiple fields
       const searchQuery = search
@@ -98,6 +98,26 @@ const CompanyService = {
       const companiesPipeline = [
         { $match: { ...matchType, ...searchQuery } },
         {
+          $lookup: {
+            from: 'users',
+            let: { assignedTo: '$AssignedTo' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$_id', '$$assignedTo'] },
+                },
+              },
+            ],
+            as: 'assignedUser',
+          },
+        },
+        {
+          $unwind: {
+            path: '$assignedUser',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
           $project: {
             _id: 1,
             CompanyName: 1,
@@ -110,6 +130,7 @@ const CompanyService = {
             PocEmail: 1,
             PocContact: 1,
             AssignedTo: 1,
+            'assignedUser.FullName': 1,
             Remarks: 1,
             updatedAt: 1, // Required for sorting
           },
@@ -137,4 +158,3 @@ const CompanyService = {
 };
 
 export { CompanyService };
-
