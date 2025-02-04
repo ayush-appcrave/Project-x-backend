@@ -53,6 +53,7 @@ export const UserService = {
       FullName: user.FullName,
       Email: user.Email,
       Role: user.Role,
+      CreatedAt: user.createdAt,
     };
 
     return authResponse;
