@@ -80,6 +80,15 @@ const CompanySchema = new Schema(
       ref: 'User',
       required: true,
     },
+    AssignedTo: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    Remarks:{
+      type:String,
+      trim:true
+    }
   },
   { timestamps: true }
 );

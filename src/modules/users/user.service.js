@@ -6,8 +6,7 @@ import { User } from './user.model.js';
 export const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    if (!user)
-      throw new ApiError(500, 'User not found during token generation');
+    if (!user) throw new ApiError(500, 'User not found during token generation');
 
     const AccessToken = user.generateAccessToken();
     const RefreshToken = user.generateRefreshToken();
@@ -44,10 +43,8 @@ export const UserService = {
     const isPasswordValid = await user.isPasswordMatch(Password);
     if (!isPasswordValid) throw new ApiError(401, 'Invalid User Password');
 
-    const { AccessToken, RefreshToken } =
-      await generateAccessTokenAndRefreshToken(user._id);
-    if (!AccessToken || !RefreshToken)
-      throw new ApiError(500, 'Token generation failed');
+    const { AccessToken, RefreshToken } = await generateAccessTokenAndRefreshToken(user._id);
+    if (!AccessToken || !RefreshToken) throw new ApiError(500, 'Token generation failed');
 
     const authResponse = {
       AccessToken,
@@ -56,6 +53,7 @@ export const UserService = {
       FullName: user.FullName,
       Email: user.Email,
       Role: user.Role,
+      CreatedAt: user.createdAt,
     };
 
     return authResponse;
@@ -68,7 +66,7 @@ export const UserService = {
         RefreshToken: { $exists: true },
       },
       { $unset: { RefreshToken: 1 } },
-      { new: true },
+      { new: true }
     );
     if (!loggedInUser) throw new ApiError(500, 'User not found');
 
@@ -102,7 +100,7 @@ export const UserService = {
       {
         Role: Number(NewRole),
       },
-      { new: true },
+      { new: true }
     ).select('-Password -RefreshToken -__v');
 
     if (!updatedUser) {
@@ -112,10 +110,7 @@ export const UserService = {
   },
 
   refreshAccessToken: async (receivedRefreshToken) => {
-    const decodedRefreshToken = jwt.verify(
-      receivedRefreshToken,
-      config.refresh_token_secret,
-    );
+    const decodedRefreshToken = jwt.verify(receivedRefreshToken, config.refresh_token_secret);
 
     if (!decodedRefreshToken) {
       throw new ApiError(401, 'Refresh token is not decoded');
@@ -131,9 +126,15 @@ export const UserService = {
       throw new ApiError(401, 'Refresh token is expired or used');
     }
 
-    const { AccessToken, RefreshToken } =
-      await generateAccessTokenAndRefreshToken(user?._id);
+    const { AccessToken, RefreshToken } = await generateAccessTokenAndRefreshToken(user?._id);
 
     return { AccessToken, RefreshToken };
+  },
+  getAllUsers: async () => {
+    const users = await User.find(null).select(
+      '-Password -RefreshToken -__v -Role -createdAt -updatedAt'
+    );
+    if (!users) throw new ApiError(500, 'Unable to fetch users');
+    return users;
   },
 };
