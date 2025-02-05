@@ -1,31 +1,29 @@
+import mongoose from 'mongoose';
 import { ApiError } from '../../utils/ApiError.js';
 import { Requirement } from './models/requirement.model.js';
-import mongoose from 'mongoose';
 
 const RequirementService = {
   // Create a new requirement
   createRequirement: async (requirementData, createdBy) => {
     console.log(requirementData);
-    const { requirement_by, assigned_to, priority, status, contract_type, ...rest } = requirementData;
-  
-    // Convert assigned_to array into ObjectId
-    const assignedToObjectIds = assigned_to.map((id) => new mongoose.Types.ObjectId(id));
-  
+    const { requirement_by, assigned_to, priority, status, contract_type, ...rest } =
+      requirementData;
+
     const requirement = await Requirement.create({
       ...rest,
-      requirement_by: new mongoose.Types.ObjectId(requirement_by), // Convert to ObjectId
-      assigned_to: assignedToObjectIds, // Store as ObjectId array
+      requirement_by: new mongoose.Types.ObjectId(requirement_by),
+      assigned_to: new mongoose.Types.ObjectId(assigned_to), // Store as single ObjectId
       priority: Number(priority),
       status: Number(status),
       contract_type: Number(contract_type),
       created_by: createdBy,
       modified_by: createdBy,
     });
-  
+
     if (!requirement) {
       throw new ApiError(500, 'Failed to create requirement');
     }
-  
+
     return requirement;
   },
 
@@ -77,13 +75,21 @@ const RequirementService = {
   },
 
   // Fetch requirement listing with filters and pagination
-  getRequirementListing: async ({ status, priority, contract_type, requirement_by, page = 1, limit = 50, search = '' }) => {
+  getRequirementListing: async ({
+    status,
+    priority,
+    contract_type,
+    requirement_by,
+    page = 1,
+    limit = 50,
+    search = '',
+  }) => {
     try {
       const pageNum = parseInt(page, 10) || 1;
       const pageSize = parseInt(limit, 10) || 50;
-  
+
       const matchFilters = {};
-  
+
       // Apply filters based on request parameters
       if (status) matchFilters.status = Number(status);
       if (priority) matchFilters.priority = Number(priority);
@@ -101,7 +107,7 @@ const RequirementService = {
             ],
           }
         : {};
-  
+
       const requirementsPipeline = [
         { $match: { ...matchFilters, ...searchQuery } },
         {
@@ -135,13 +141,16 @@ const RequirementService = {
         },
         { $sort: { updatedAt: -1 } },
       ];
-  
+
       const options = {
         page: pageNum,
         limit: pageSize,
       };
-  
-      const result = await Requirement.aggregatePaginate(Requirement.aggregate(requirementsPipeline), options);
+
+      const result = await Requirement.aggregatePaginate(
+        Requirement.aggregate(requirementsPipeline),
+        options
+      );
       return {
         data: result.docs,
         currentPage: result.page,
@@ -151,22 +160,22 @@ const RequirementService = {
     } catch (error) {
       throw new ApiError(500, `Error fetching requirement listings: ${error.message}`);
     }
-  },  
+  },
 
   //Delete Requirement
   deleteRequirement: async (requirementID) => {
     if (!requirementID) {
       throw new ApiError(400, 'Requirement ID is required');
     }
-  
+
     const deletedRequirement = await Requirement.findByIdAndDelete(requirementID);
-  
+
     if (!deletedRequirement) {
       throw new ApiError(404, 'Requirement not found');
     }
-  
+
     return deletedRequirement;
-  }
+  },
 };
 
 export { RequirementService };

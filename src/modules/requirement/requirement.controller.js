@@ -14,7 +14,9 @@ const createRequirement = asyncHandler(async (req, res) => {
   // Create the requirement
   const requirement = await RequirementService.createRequirement(req.body, req.user._id);
 
-  return res.status(201).json(new ApiResponse(201, requirement, 'Requirement created successfully'));
+  return res
+    .status(201)
+    .json(new ApiResponse(201, requirement, 'Requirement created successfully'));
 });
 
 const getRequirementDetail = asyncHandler(async (req, res) => {
@@ -25,7 +27,9 @@ const getRequirementDetail = asyncHandler(async (req, res) => {
   }
 
   const requirementDetail = await RequirementService.getRequirementDetail(requirementID);
-  return res.status(200).json(new ApiResponse(200, requirementDetail, 'Fetched Requirement Detail successfully'));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, requirementDetail, 'Fetched Requirement Detail successfully'));
 });
 
 const updateRequirement = asyncHandler(async (req, res) => {
@@ -37,13 +41,27 @@ const updateRequirement = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Requirement ID is required');
   }
 
-  const updatedRequirement = await RequirementService.updateRequirement(requirementID, updateData, modifiedBy);
+  const updatedRequirement = await RequirementService.updateRequirement(
+    requirementID,
+    updateData,
+    modifiedBy
+  );
 
-  return res.status(200).json(new ApiResponse(200, updatedRequirement, 'Requirement updated successfully'));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedRequirement, 'Requirement updated successfully'));
 });
 
 const getRequirementListing = asyncHandler(async (req, res) => {
-  const { status, priority, contract_type, requirement_by, page = 1, limit = 50, search = '' } = req.query;
+  const {
+    status,
+    priority,
+    contract_type,
+    requirement_by,
+    page = 1,
+    limit = 50,
+    search = '',
+  } = req.query;
 
   // Ensure `page` and `limit` are valid numbers
   const pageNum = parseInt(page, 10);
@@ -66,7 +84,9 @@ const getRequirementListing = asyncHandler(async (req, res) => {
     search,
   });
 
-  return res.status(200).json(new ApiResponse(200, requirements, 'Fetched Requirement Listing successfully'));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, requirements, 'Fetched Requirement Listing successfully'));
 });
 
 const deleteRequirement = asyncHandler(async (req, res) => {
@@ -81,4 +101,10 @@ const deleteRequirement = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, {}, 'Requirement deleted successfully'));
 });
 
-export { createRequirement, getRequirementDetail, getRequirementListing, updateRequirement, deleteRequirement};
+export {
+  createRequirement,
+  deleteRequirement,
+  getRequirementDetail,
+  getRequirementListing,
+  updateRequirement,
+};

@@ -1,11 +1,15 @@
 import Joi from 'joi';
-import { requirementPriority, requirementStatus, requirementContractType } from '../../constants/requirement.constants.js';
+import {
+  requirementContractType,
+  requirementPriority,
+  requirementStatus,
+} from '../../constants/requirement.constants.js';
 
 export const createRequirementSchema = Joi.object({
   requirement_title: Joi.string().required().trim(),
   requirement_by: Joi.string().required().trim(), // Reference to Company ID
   number_of_positions: Joi.number().integer().min(1).required(),
-  assigned_to: Joi.array().items(Joi.string().trim()).required(), // Array of User IDs
+  assigned_to: Joi.string().trim().required(), // Only one user
   location: Joi.string().required().trim(),
   job_description: Joi.string().required().trim(),
   skills: Joi.string().required().trim(),
@@ -27,7 +31,7 @@ export const createRequirementSchema = Joi.object({
 export const updateRequirementSchema = Joi.object({
   requirement_title: Joi.string().trim(),
   number_of_positions: Joi.number().integer().min(1),
-  assigned_to: Joi.array().items(Joi.string().trim()),
+  assigned_to: Joi.string().trim().required(), // Only one user
   location: Joi.string().trim(),
   job_description: Joi.string().trim(),
   skills: Joi.string().trim(),
